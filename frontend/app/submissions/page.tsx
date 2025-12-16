@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import {
     Table,
     TableBody,
@@ -9,35 +12,52 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase"
 
-const submissions = [
-    {
-        id: "1",
-        student: "Ahmad Fulan",
-        assignment: "Sejarah Kemerdekaan",
-        submittedAt: "2025-12-16 10:00",
-        status: "graded",
-        score: 85,
-    },
-    {
-        id: "2",
-        student: "Budi Santoso",
-        assignment: "Sejarah Kemerdekaan",
-        submittedAt: "2025-12-16 10:15",
-        status: "graded",
-        score: 78,
-    },
-    {
-        id: "3",
-        student: "Citra Dewi",
-        assignment: "Sejarah Kemerdekaan",
-        submittedAt: "2025-12-16 10:30",
-        status: "pending",
-        score: null,
-    },
-]
+interface Submission {
+    id: string
+    student_name: string
+    created_at: string
+    status: string
+    assignment_id: string // In real app, join with assignments table
+    grades?: {
+        ai_score: number
+    }[]
+}
 
 export default function SubmissionsPage() {
+    const [submissions, setSubmissions] = useState<Submission[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        async function fetchSubmissions() {
+            try {
+                const { data, error } = await supabase
+                    .from('submissions')
+                    .select(`
+            *,
+            grades (
+              ai_score
+            )
+          `)
+                    .order('created_at', { ascending: false })
+
+                if (error) throw error
+                setSubmissions(data || [])
+            } catch (error) {
+                console.error('Error fetching submissions:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchSubmissions()
+    }, [])
+
+    if (loading) {
+        return <div className="p-8">Loading...</div>
+    }
+
     return (
         <div className="p-8 space-y-8">
             <div className="flex items-center justify-between space-y-2">
@@ -48,7 +68,6 @@ export default function SubmissionsPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Student Name</TableHead>
-                            <TableHead>Assignment</TableHead>
                             <TableHead>Submitted At</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Score</TableHead>
@@ -58,17 +77,16 @@ export default function SubmissionsPage() {
                     <TableBody>
                         {submissions.map((submission) => (
                             <TableRow key={submission.id}>
-                                <TableCell className="font-medium">{submission.student}</TableCell>
-                                <TableCell>{submission.assignment}</TableCell>
-                                <TableCell>{submission.submittedAt}</TableCell>
+                                <TableCell className="font-medium">{submission.student_name}</TableCell>
+                                <TableCell>{new Date(submission.created_at).toLocaleString()}</TableCell>
                                 <TableCell>
                                     <Badge variant={submission.status === "graded" ? "default" : "secondary"}>
                                         {submission.status}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    {submission.score !== null ? (
-                                        <span className="font-bold">{submission.score}</span>
+                                    {submission.grades && submission.grades.length > 0 ? (
+                                        <span className="font-bold">{submission.grades[0].ai_score}</span>
                                     ) : (
                                         "-"
                                     )}
