@@ -1,0 +1,204 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "llama-3.3-70b-versatile",
+          "mode": "list",
+          "cachedResultName": "llama-3.3-70b-versatile"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        192
+      ],
+      "id": "064e5295-4458-4a30-89fa-de67726fc623",
+      "name": "OpenAI Chat Model",
+      "notesInFlow": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "MBtpPKuk4OSSkiIW",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=ROLE:\nAnda adalah Asisten Dosen Senior yang objektif, teliti, dan tegas.\n\nINSTRUCTION:\n1. Bandingkan \"Jawaban Mahasiswa\" dengan \"Kunci Jawaban\".\n2. Analisis kesamaan makna inti.\n3. Berikan nilai (0-100).\n4. Berikan feedback singkat.\n\nOUTPUT FORMAT (JSON ONLY):\n{\n  \"score\": (integer),\n  \"feedback\": \"(string)\",\n  \"reasoning\": \"(string)\"\n}\n\n Tolong nilai data berikut:\n\n[SOAL]\n{{ $json.body.question_text }}\n\n[KUNCI JAWABAN]\n{{ $json.body.correct_answer }}\n\n[JAWABAN MAHASISWA]\n{{ $json.body.student_answer }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        144,
+        0
+      ],
+      "id": "1408442c-9931-4873-a354-e086d257e384",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Kita ambil teks output dari AI Agent\n// Pastikan output AI lu formatnya murni JSON kayak contoh lu sebelumnya\nconst aiResponse = items[0].json.output || items[0].json.text;\n\n// Kita ubah teks itu jadi Object (Data matang)\nconst data = JSON.parse(aiResponse);\n\nreturn [\n  {\n    json: {\n      ai_score: data.score,\n      ai_feedback: data.feedback,\n      ai_reasoning: data.reasoning,\n      // Kita panggil lagi ID submission dari Webhook di awal biar gak hilang\n      submission_id: $('Webhook').first().json.body.submission_id\n      // ^ NOTE: Sesuaikan 'body.record.id' dengan struktur JSON webhook lu\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        0
+      ],
+      "id": "87a2e1b5-da28-48d5-9e3b-ccaccaf675c8",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "tableId": "grades",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        704,
+        0
+      ],
+      "id": "48031d43-6fdf-45c4-858b-07a5127e6fa4",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "nLyTEfGuhnLICcDS",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "grade-essay",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "26f8c468-06c5-4bea-bd73-45fc81a1ec2a",
+      "name": "Webhook",
+      "webhookId": "9ccc3d70-0d25-4d2c-8247-066d55095e2b"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "update",
+        "tableId": "submissions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.submission_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "graded"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "6729142a-ec4e-4717-9dfb-72041ebfee55",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "nLyTEfGuhnLICcDS",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "310cee07-cb38-44dc-926f-cb82fd708660",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f0f49fad8f8b42dc2671d6845f44fbb104f526d4d26251283e617a7183aea3be"
+  },
+  "id": "pMKrbzEk9TYdeYgG",
+  "tags": []
+}
