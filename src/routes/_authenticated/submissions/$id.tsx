@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { formatDistanceToNow } from 'date-fns'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { SubmissionWithGrade } from '@/features/submissions/data/schema'
@@ -216,7 +217,7 @@ function SubmissionDetail() {
                 <h3 className="font-semibold">Grading Result</h3>
                 <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                   <Clock className="h-3 w-3" />
-                  {grade ? 'Graded just now' : 'Pending...'}
+                  {grade ? `Graded ${formatDistanceToNow(new Date(grade.created_at), { addSuffix: true })}` : 'Pending...'}
                 </p>
               </div>
               {grade && (
