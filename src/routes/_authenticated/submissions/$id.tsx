@@ -117,7 +117,7 @@ function SubmissionDetail() {
 
       <Main className="h-[calc(100vh-4rem)] p-0 md:p-6 lg:p-8">
         {/* Mobile View with Tabs */}
-        <div className="md:hidden h-full flex flex-col overflow-hidden">
+        <div className="lg:hidden h-full flex flex-col overflow-hidden">
           <div className="p-4 border-b bg-card flex justify-between items-center sticky top-0 z-10 shrink-0">
             <Badge variant={submission.status === 'graded' ? 'default' : 'secondary'} className="uppercase">
               {submission.status}
@@ -186,7 +186,7 @@ function SubmissionDetail() {
         </div>
 
         {/* Desktop Split View */}
-        <div className="hidden md:grid grid-cols-12 gap-6 h-full max-h-[calc(100vh-8rem)]">
+        <div className="hidden lg:grid grid-cols-12 gap-6 h-full max-h-[calc(100vh-8rem)]">
           {/* Left Column: Context & Answer */}
           <Card className="col-span-7 lg:col-span-8 flex flex-col h-full border-0 shadow-none bg-transparent">
             <ScrollArea className="flex-1 pr-4">
