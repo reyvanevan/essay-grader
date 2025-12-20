@@ -117,8 +117,8 @@ function SubmissionDetail() {
 
       <Main className="h-[calc(100vh-4rem)] p-0 md:p-6 lg:p-8">
         {/* Mobile View with Tabs */}
-        <div className="md:hidden h-full flex flex-col">
-          <div className="p-4 border-b bg-card flex justify-between items-center sticky top-0 z-10">
+        <div className="md:hidden h-full flex flex-col overflow-hidden">
+          <div className="p-4 border-b bg-card flex justify-between items-center sticky top-0 z-10 shrink-0">
             <Badge variant={submission.status === 'graded' ? 'default' : 'secondary'} className="uppercase">
               {submission.status}
             </Badge>
@@ -128,18 +128,18 @@ function SubmissionDetail() {
               </div>
             )}
           </div>
-          <Tabs defaultValue="submission" className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-2 rounded-none border-b h-12">
+          <Tabs defaultValue="submission" className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="grid w-full grid-cols-2 rounded-none border-b h-12 shrink-0">
               <TabsTrigger value="submission">Submission</TabsTrigger>
               <TabsTrigger value="feedback">Feedback</TabsTrigger>
             </TabsList>
-            <TabsContent value="submission" className="flex-1 p-4 overflow-y-auto">
+            <TabsContent value="submission" className="flex-1 overflow-y-auto p-4 m-0">
               <div className="space-y-6 pb-20">
                 <div>
                   <h3 className="font-semibold mb-2 flex items-center gap-2">
                     <FileText className="h-4 w-4" /> Question
                   </h3>
-                  <div className="bg-muted/50 p-4 rounded-lg text-sm leading-relaxed">
+                  <div className="bg-muted/50 p-4 rounded-lg text-sm leading-relaxed break-words">
                     {submission.question_text}
                   </div>
                 </div>
@@ -148,13 +148,13 @@ function SubmissionDetail() {
                   <h3 className="font-semibold mb-2 flex items-center gap-2">
                     <User className="h-4 w-4" /> Student Answer
                   </h3>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                     {submission.answer_text}
                   </div>
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="feedback" className="flex-1 p-4 overflow-y-auto">
+            <TabsContent value="feedback" className="flex-1 overflow-y-auto p-4 m-0">
               {grade ? (
                 <div className="space-y-6 pb-20">
                   <Card className="border-primary/20 bg-primary/5">
@@ -163,14 +163,14 @@ function SubmissionDetail() {
                         <CheckCircle2 className="h-5 w-5" /> AI Feedback
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="text-sm leading-relaxed">
+                    <CardContent className="text-sm leading-relaxed break-words">
                       {grade.ai_feedback}
                     </CardContent>
                   </Card>
 
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm">Reasoning</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-muted-foreground leading-relaxed break-words bg-muted/50 p-3 rounded-md">
                       {grade.ai_reasoning}
                     </p>
                   </div>
@@ -193,7 +193,7 @@ function SubmissionDetail() {
               <div className="space-y-8 pb-10">
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Question</h3>
-                  <p className="text-lg font-medium leading-relaxed text-foreground/90">
+                  <p className="text-lg font-medium leading-relaxed text-foreground/90 break-words">
                     {submission.question_text}
                   </p>
                 </div>
@@ -201,7 +201,7 @@ function SubmissionDetail() {
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Student Answer</h3>
                   <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <p className="whitespace-pre-wrap text-base leading-relaxed">
+                    <p className="whitespace-pre-wrap text-base leading-relaxed break-words">
                       {submission.answer_text}
                     </p>
                   </div>
@@ -212,7 +212,7 @@ function SubmissionDetail() {
 
           {/* Right Column: Grading Panel */}
           <Card className="col-span-5 lg:col-span-4 h-full flex flex-col shadow-lg border-l rounded-none md:rounded-xl overflow-hidden">
-            <div className="p-6 bg-muted/30 border-b flex items-center justify-between">
+            <div className="p-6 bg-muted/30 border-b flex items-center justify-between shrink-0">
               <div>
                 <h3 className="font-semibold">Grading Result</h3>
                 <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
@@ -233,14 +233,14 @@ function SubmissionDetail() {
                     <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 text-sm flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" /> Feedback
                     </h4>
-                    <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
+                    <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed break-words">
                       {grade.ai_feedback}
                     </p>
                   </div>
                   <Separator />
                   <div>
                     <h4 className="font-medium text-sm mb-2 text-muted-foreground">Reasoning</h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed bg-muted p-3 rounded-md">
+                    <p className="text-xs text-muted-foreground leading-relaxed bg-muted p-3 rounded-md break-words">
                       {grade.ai_reasoning}
                     </p>
                   </div>
