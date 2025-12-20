@@ -1,9 +1,16 @@
+import { useState } from 'react'
 import {
     ColumnDef,
+    SortingState,
+    VisibilityState,
     flexRender,
     getCoreRowModel,
-    useReactTable,
+    getFacetedRowModel,
+    getFacetedUniqueValues,
+    getFilteredRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
 } from '@tanstack/react-table'
 import {
     Table,
@@ -13,41 +20,89 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
+import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { SubmissionWithGrade } from '../data/schema'
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+interface SubmissionsTableProps {
+    columns: ColumnDef<SubmissionWithGrade>[]
+    data: SubmissionWithGrade[]
 }
 
-export function SubmissionsTable<TData, TValue>({
-    columns,
-    data,
-}: DataTableProps<TData, TValue>) {
+const statuses = [
+    {
+        value: 'graded',
+        label: 'Graded',
+    },
+    {
+        value: 'pending',
+        label: 'Pending',
+    },
+]
+
+export function SubmissionsTable({ columns, data }: SubmissionsTableProps) {
+    const [rowSelection, setRowSelection] = useState({})
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [globalFilter, setGlobalFilter] = useState('')
+
     const table = useReactTable({
         data,
         columns,
+        state: {
+            sorting,
+            columnVisibility,
+            rowSelection,
+            globalFilter,
+        },
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection,
+        onSortingChange: setSorting,
+        onColumnVisibilityChange: setColumnVisibility,
+        onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: (row, _columnId, filterValue) => {
+            const student = String(row.getValue('student_name')).toLowerCase()
+            const question = String(row.getValue('question_text') || '').toLowerCase()
+            const searchValue = String(filterValue).toLowerCase()
+            return student.includes(searchValue) || question.includes(searchValue)
+        },
         getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFacetedRowModel: getFacetedRowModel(),
+        getFacetedUniqueValues: getFacetedUniqueValues(),
     })
 
     return (
-        <div>
-            <div className="rounded-md border">
+        <div className="flex flex-1 flex-col gap-4">
+            <DataTableToolbar
+                table={table}
+                searchPlaceholder="Search students or questions..."
+                filters={[
+                    {
+                        columnId: 'status',
+                        title: 'Status',
+                        options: statuses,
+                    },
+                ]}
+            />
+            <div className="overflow-hidden rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                ))}
+                                {headerGroup.headers.map((header) => {
+                                    return (
+                                        <TableHead key={header.id} colSpan={header.colSpan}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    )
+                                })}
                             </TableRow>
                         ))}
                     </TableHeader>
@@ -60,39 +115,28 @@ export function SubmissionsTable<TData, TValue>({
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
                                         </TableCell>
                                     ))}
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No submissions yet.
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                >
+                                    No results.
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                >
-                    Previous
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                >
-                    Next
-                </Button>
-            </div>
+            <DataTablePagination table={table} />
         </div>
     )
 }

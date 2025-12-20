@@ -17,7 +17,8 @@ export const submissionsColumns: ColumnDef<SubmissionWithGrade>[] = [
         accessorKey: 'question_text',
         header: 'Question',
         cell: ({ row }) => {
-            const question = row.getValue('question_text') as string
+            const question = row.getValue('question_text') as string | null
+            if (!question) return <span className="text-muted-foreground">-</span>
             return (
                 <span className="text-muted-foreground truncate max-w-[200px] block">
                     {question.length > 50 ? `${question.slice(0, 50)}...` : question}
