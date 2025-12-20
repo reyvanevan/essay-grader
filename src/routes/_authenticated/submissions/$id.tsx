@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { ArrowLeft, RefreshCw, Clock, User, FileText, CheckCircle2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Header } from '@/components/layout/header'
@@ -189,7 +188,7 @@ function SubmissionDetail() {
         <div className="hidden lg:grid grid-cols-12 gap-6 h-full max-h-[calc(100vh-8rem)]">
           {/* Left Column: Context & Answer */}
           <Card className="col-span-7 lg:col-span-8 flex flex-col h-full border-0 shadow-none bg-transparent">
-            <ScrollArea className="flex-1 pr-4">
+            <div className="flex-1 overflow-y-auto pr-4 pb-10">
               <div className="space-y-8 pb-10">
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Question</h3>
@@ -207,7 +206,7 @@ function SubmissionDetail() {
                   </div>
                 </div>
               </div>
-            </ScrollArea>
+            </div>
           </Card>
 
           {/* Right Column: Grading Panel */}
@@ -227,7 +226,7 @@ function SubmissionDetail() {
               )}
             </div>
             {grade ? (
-              <ScrollArea className="flex-1 p-6">
+              <div className="flex-1 overflow-y-auto p-6">
                 <div className="space-y-6">
                   <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/50">
                     <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2 text-sm flex items-center gap-2">
@@ -245,7 +244,7 @@ function SubmissionDetail() {
                     </p>
                   </div>
                 </div>
-              </ScrollArea>
+              </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-4">
                 <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center animate-pulse">
