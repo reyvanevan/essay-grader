@@ -168,7 +168,7 @@ function SubmissionDetail() {
                     </CardContent>
                   </Card>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 pb-10">
                     <h3 className="font-semibold text-sm">Reasoning</h3>
                     <p className="text-xs text-muted-foreground leading-relaxed break-words bg-muted/50 p-3 rounded-md">
                       {grade.ai_reasoning}
@@ -238,7 +238,7 @@ function SubmissionDetail() {
                     </p>
                   </div>
                   <Separator />
-                  <div>
+                  <div className="pb-10">
                     <h4 className="font-medium text-sm mb-2 text-muted-foreground">Reasoning</h4>
                     <p className="text-xs text-muted-foreground leading-relaxed bg-muted p-3 rounded-md break-words">
                       {grade.ai_reasoning}
