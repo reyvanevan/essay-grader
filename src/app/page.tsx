@@ -40,7 +40,7 @@ export default function LandingPage() {
               <Sparkles className="h-4 w-4" />
             </div>
             <span className="text-[18px] font-semibold tracking-tight text-[#111]">
-              Kromia Eval
+              Kromia Desk
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[#444]">
@@ -165,7 +165,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-[#111]" />
             <span className="text-lg font-medium tracking-tight text-[#111]">
-              Kromia Eval
+              Kromia Desk
             </span>
           </div>
           <p className="max-w-md text-[#555] text-[14px]">

@@ -73,7 +73,7 @@ export function DashboardSidebar() {
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold text-[#111] tracking-wide">KROMIA</span>
-                                <span className="truncate text-[11px] text-[#888] font-medium tracking-widest uppercase">Eval Engine</span>
+                                <span className="truncate text-[11px] text-[#888] font-medium tracking-widest uppercase">Desk System</span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

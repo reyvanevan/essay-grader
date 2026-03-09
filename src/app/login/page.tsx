@@ -20,7 +20,7 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
 
                 <div className="text-center mb-8">
                     <h1 className="text-[24px] font-semibold text-[#111] tracking-tight mb-2">Lecturer Portal</h1>
-                    <p className="text-[14px] text-gray-500">Sign in to Kromia Eval to manage assignments and grades.</p>
+                    <p className="text-[14px] text-gray-500">Sign in to Kromia Desk to manage assignments and grades.</p>
                 </div>
 
                 {hasError && (

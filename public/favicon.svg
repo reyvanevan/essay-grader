@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="256" height="256" rx="64" fill="url(#paint0_linear)"/>
+<!-- K Base -->
+<path d="M72 64V192" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M168 192L72 128" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M72 128L156 72" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+
+<!-- AI Sparkle Core replacing the top right of the K -->
+<path d="M176 96C176 80 188 68 204 68C188 68 176 56 176 40C176 56 164 68 148 68C164 68 176 80 176 96Z" fill="#6366F1"/>
+<path d="M140 108C140 100 146 94 154 94C146 94 140 88 140 80C140 88 134 94 126 94C134 94 140 100 140 108Z" fill="#818CF8"/>
+
+<defs>
+<linearGradient id="paint0_linear" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+<stop stop-color="#27272A"/>
+<stop offset="1" stop-color="#09090B"/>
+</linearGradient>
+</defs>
+</svg>

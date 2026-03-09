@@ -22,8 +22,8 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Smart Assistant Lecturer | AI Essay Grader",
-  description: "Automated Essay Grading System using LLM and OCR",
+  title: "Kromia Desk | AI Essay Grader",
+  description: "Automated Assessment & Grading Engine powered by LLM and OCR",
 };
 
 export default function RootLayout({
