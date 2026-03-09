@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, AlertCircle } from "lucide-react";
+import { Sparkles, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { login } from "./actions";
 
@@ -14,13 +14,13 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
             <div className="w-full max-w-[400px] bg-white p-8 md:p-10 rounded-[32px] border border-black/[0.04] shadow-[0_8px_30px_0_rgba(0,0,0,0.04)] flex flex-col">
                 <div className="flex justify-center mb-6">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-[#333] to-[#000] text-white shadow-md">
-                        <GraduationCap className="h-7 w-7" strokeWidth={1.5} />
+                        <Sparkles className="h-7 w-7" strokeWidth={1.5} />
                     </div>
                 </div>
 
                 <div className="text-center mb-8">
                     <h1 className="text-[24px] font-semibold text-[#111] tracking-tight mb-2">Lecturer Portal</h1>
-                    <p className="text-[14px] text-gray-500">Sign in to SmartAssistant to manage assignments and grades.</p>
+                    <p className="text-[14px] text-gray-500">Sign in to Kromia Eval to manage assignments and grades.</p>
                 </div>
 
                 {hasError && (

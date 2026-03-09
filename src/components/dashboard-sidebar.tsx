@@ -8,7 +8,7 @@ import {
     Settings,
     FileText,
     BarChart3,
-    GraduationCap,
+    Sparkles,
     ChevronRight,
     LogOut,
     User
@@ -69,11 +69,11 @@ export function DashboardSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-black/[0.04]">
                             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-b from-[#333] to-[#000] text-white shadow-[0_2px_10px_0_rgba(0,0,0,0.06)]">
-                                <GraduationCap className="size-4" />
+                                <Sparkles className="size-4" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium text-[#111]">SA Lecturer</span>
-                                <span className="truncate text-xs text-[#555]">Technical University</span>
+                                <span className="truncate font-semibold text-[#111] tracking-wide">KROMIA</span>
+                                <span className="truncate text-[11px] text-[#888] font-medium tracking-widest uppercase">Eval Engine</span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -92,8 +92,8 @@ export function DashboardSidebar() {
                                         tooltip={item.title}
                                         render={<a href={item.url} />}
                                         className={`transition-colors flex items-center gap-2 ${isActive
-                                                ? "bg-black/[0.06] text-[#111] font-semibold"
-                                                : "text-[#555] font-medium hover:text-[#111] hover:bg-black/[0.04]"
+                                            ? "bg-black/[0.06] text-[#111] font-semibold"
+                                            : "text-[#555] font-medium hover:text-[#111] hover:bg-black/[0.04]"
                                             }`}
                                     >
                                         <item.icon className="h-4 w-4" />

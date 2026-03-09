@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Star, ScanSearch, BookOpenCheck, Scale, ShieldCheck, ArrowRight, GraduationCap } from 'lucide-react';
+import { Star, ScanSearch, BookOpenCheck, Scale, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -37,10 +37,10 @@ export default function LandingPage() {
         <div className="w-full max-w-[1200px] flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 rounded-full backdrop-blur-2xl backdrop-saturate-150 bg-white/40 border border-white/60 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-b from-[#333] to-[#000] text-white shadow-sm">
-              <GraduationCap className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
             </div>
             <span className="text-[18px] font-semibold tracking-tight text-[#111]">
-              SmartAssistant
+              Kromia Eval
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[#444]">
@@ -163,16 +163,16 @@ export default function LandingPage() {
       <footer className="border-t border-black/[0.05] bg-white py-12 md:py-16">
         <div className="container mx-auto px-6 flex flex-col items-center justify-center text-center gap-6 max-w-[1200px]">
           <div className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-[#111]" />
+            <Sparkles className="h-5 w-5 text-[#111]" />
             <span className="text-lg font-medium tracking-tight text-[#111]">
-              SmartAssistant
+              Kromia Eval
             </span>
           </div>
           <p className="max-w-md text-[#555] text-[14px]">
-            A Bachelor Thesis Project at Universitas Muhammadiyah Bandung. Focusing on the intersection of Generative AI and Education.
+            A smart assessment orchestration system developed as a Bachelor Thesis Project. Proudly powering education through Generative AI.
           </p>
           <div className="text-[13px] text-[#888]">
-            &copy; 2026 M Reyvan Purnama (220102043)
+            &copy; 2026 Kromiatech. Developed by M Reyvan Purnama.
           </div>
         </div>
       </footer>
