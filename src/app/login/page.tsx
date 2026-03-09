@@ -13,9 +13,7 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
         <div className="flex min-h-screen items-center justify-center bg-[#f8f9fa] px-4 font-sans">
             <div className="w-full max-w-[400px] bg-white p-8 md:p-10 rounded-[32px] border border-black/[0.04] shadow-[0_8px_30px_0_rgba(0,0,0,0.04)] flex flex-col">
                 <div className="flex justify-center mb-6">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-[#333] to-[#000] text-white shadow-md">
-                        <Sparkles className="h-7 w-7" strokeWidth={1.5} />
-                    </div>
+                    <img src="/logo.svg" alt="Kromia Desk" className="h-14 w-14 rounded-2xl shadow-md" />
                 </div>
 
                 <div className="text-center mb-8">

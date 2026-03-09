@@ -36,9 +36,7 @@ export default function LandingPage() {
       >
         <div className="w-full max-w-[1200px] flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 rounded-full backdrop-blur-2xl backdrop-saturate-150 bg-white/40 border border-white/60 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-b from-[#333] to-[#000] text-white shadow-sm">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <img src="/logo.svg" alt="Kromia Desk Logo" className="h-8 w-8 rounded-full shadow-sm" />
             <span className="text-[18px] font-semibold tracking-tight text-[#111]">
               Kromia Desk
             </span>
@@ -163,7 +161,7 @@ export default function LandingPage() {
       <footer className="border-t border-black/[0.05] bg-white py-12 md:py-16">
         <div className="container mx-auto px-6 flex flex-col items-center justify-center text-center gap-6 max-w-[1200px]">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[#111]" />
+            <img src="/logo.svg" alt="Kromia Desk" className="h-6 w-6 rounded-md" />
             <span className="text-lg font-medium tracking-tight text-[#111]">
               Kromia Desk
             </span>

@@ -68,9 +68,7 @@ export function DashboardSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-black/[0.04]">
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-b from-[#333] to-[#000] text-white shadow-[0_2px_10px_0_rgba(0,0,0,0.06)]">
-                                <Sparkles className="size-4" />
-                            </div>
+                            <img src="/logo.svg" alt="KROMIA" className="size-8 rounded-lg shadow-[0_2px_10px_0_rgba(0,0,0,0.06)]" />
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold text-[#111] tracking-wide">KROMIA</span>
                                 <span className="truncate text-[11px] text-[#888] font-medium tracking-widest uppercase">Desk System</span>
