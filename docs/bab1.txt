@@ -1,0 +1,62 @@
+PROPOSAL TUGAS AKHIR
+PENGEMBANGAN SMART ASSISTANT LECTURER UNTUK ANALISIS JAWABAN ESAI OTOMATIS BERBASIS LLM (LARGE LANGUAGE MODELS)
+
+
+
+ 
+
+
+disusun oleh:
+M Reyvan Purnama 
+220102043
+
+
+
+
+PROGRAM STUDI TEKNIK INFORMATIKA 
+FAKULTAS SAINS DAN TEKNOLOGI 
+UNIVERSITAS MUHAMMADIYAH BANDUNG 
+2026
+ 
+BAB I
+PENDAHULUAN
+
+1.1. Latar Belakang
+Penilaian tugas esai merupakan salah satu metode evaluasi yang efektif untuk mengukur pemahaman mendalam mahasiswa terhadap materi perkuliahan. Namun, proses penilaian esai secara manual memiliki kendala signifikan, yaitu memakan waktu yang lama (time-consuming) dan rentan terhadap subjektivitas penilai. Dalam kelas dengan jumlah mahasiswa yang besar, dosen seringkali mengalami kesulitan untuk memberikan umpan balik (feedback) yang detail dan personal kepada setiap mahasiswa secara tepat waktu, yang berpotensi menyebabkan inkonsistensi penilaian (Ugbari, 2024).
+Kondisi tersebut secara nyata terjadi di lingkungan Program Studi Teknik Informatika Universitas Muhammadiyah Bandung, di mana rasio jumlah mahasiswa yang terus meningkat setiap tahunnya menimbulkan tantangan besar bagi para dosen pengampu dalam melakukan evaluasi pembelajaran yang berkualitas. Dosen seringkali dihadapkan pada tumpukan ratusan berkas jawaban esai yang harus dikoreksi dalam waktu singkat, yang secara psikologis dapat memicu kelelahan kognitif (cognitive fatigue). Hal ini secara tidak langsung memperbesar peluang terjadinya subjektivitas serta inkonsistensi penilaian, karena keterbatasan kemampuan manusia untuk menjaga fokus tetap stabil saat memeriksa jumlah dokumen yang sangat masif di tengah beban kerja akademik lainnya.
+Kemunculan teknologi Large Language Models (LLM) membawa paradigma baru dalam pemrosesan bahasa alami (Natural Language Processing). Berbagai studi terbaru menunjukkan bahwa LLM memiliki potensi besar dalam skenario pendidikan, termasuk kemampuan untuk memberikan evaluasi setara tingkat manusia pada tes standar (Kasneci et al., 2023). Namun, implementasi LLM secara langsung seringkali 	terkendala oleh masalah integrasi dengan rubrik spesifik dosen dan risiko halusinasi jika tidak dibatasi oleh konteks yang jelas.
+Oleh karena itu, diperlukan sebuah sistem perantara (middleware) yang mampu mengorkestrasi instruksi dosen, rubrik penilaian, dan jawaban mahasiswa ke dalam engine LLM secara terstruktur. Penelitian ini mengusulkan pengembangan Smart Assistant Lecturer, sebuah sistem yang mengintegrasikan kemampuan LLM untuk analisis jawaban esai dan Optical Character Recognition (OCR) untuk memproses jawaban tulis tangan, di mana efektivitas penggunaan teknologi OCR telah terbukti dalam digitalisasi dokumen pada sektor pendidikan (Memon et al., 2020).
+Selain itu, guna menjamin validitas hasil penelitian, pengukuran akurasi dan konsistensi performa sistem akan dievaluasi menggunakan pengukuran korelasi statistic, Mean Aboslute Error (MAE), serta pengujian Confusion Matrix guna menjamin validitas hasil penilaian baik seccara angka maupun kategori (Sokolova & Lapalme, 2009).
+Berbeda dengan sistem Automated Essay Scoring (AES) konvensional yang mayoritas berfokus pada pencocokan kata kunci (keyword matching) atau statistik linguistik sederhana (Shermis & Burstein, 2013). Penelitian ini menawarkan titik pembeda melalui pengembangan arsitektur middleware yang mengorkestrasi rubrik penilaian spesifik dosen secara dinamis. Jika pada umumnya implementasi LLM di bidang pendidikan hanya bersifat penggunaan langsung (direct-prompting), sistem ini memperkenalkan lapisan integrasi yang mampu meminimalisir risiko halusinasi Informasi dengan menyelaraskan jawaban mahasiswa terhadap parameter penilaian yang telah ditentukan oleh dosen pengampu. 
+
+1.2. Rumusan Masalah
+Masalah yang dapat dikemukakan dalam penelitian ini sebagai berikut :
+1.	Bagaimana mekanisme pengintegrasian rubrik penilaian dan instruksi dosen ke dalam model Bahasa agar menghasilkan analisis jawaban esai yang objektif dan terstruktur?
+2.	Bagaimana tingkat akurasi dan konsistensi hasil penilaian otomatis yang dihasilkan oleh sistem jika dibandingkan dengan penilaian manual yang dilakukan oleh dosen pengampu?
+3.	Sejauh mana efektivitas penggunaan teknologi Optical Character Recognition (OCR) dalam mengonversi jawaban esai tulis tangan agar dapat diinterpretasikan secara akurat oleh sistem penilaian berbasis Bahasa? 
+
+1.3. Tujuan Penelitian
+Tujuan yang dapat dikemukakan pada penelitian ini adalah sebagai berikut.
+1.	Merancang dan mengimplementasikan arsitektur sistem yang mampu mengorkestrasi instruksi, rubrik penilaian, dan jawaban mahasiswa ke dalam engine LLM.
+2.	Mengevaluasi tingkat akurasi dan konsistensi penilaian otomatis melalui pengukuran korelasi statistii, Mean Absolute Error (MAE), serta pengujian Confusion Matrix guna meminimalisir factor subjektivitas dalam evaluasi tugas esai.
+3.	Menguji efektivitas integrasi teknologi OCR dalam memproses input jawaban tulis tangan menjadi format digital yang akurat bagi model bahasa. 
+
+1.4. Batasan Masalah
+Agar penelitian ini terarah, terukur, dan dapat diselesaikan dalam jangka waktu yang telah ditentukan, penulis membatasi ruang lingkup penelitian sebagai berikut.
+1.	Objek Penelitian
+Sistem ini diterapkan secara khusus pada mata kuliah di Program Studi Teknik Informatika Universitas Muhammadiyah Bandung yang bersifat teoritis, analisis, maupun yang melibatkan logika pemrograman dasar (seperti algoritma dan pseudocode dalam bentuk esai). Penelitian ini tidak mencakup mata kuliah dengan perhitungan numerik kompleks atau matematis murni (seperti Kalkulus atau Statistika) guna menghindari potensi kesalahan kalkulasi (hallucination) pada model bahasa.
+2.	Teknologi AI
+Menggunakan layanan API model bahasa besar (Large Language Models) pihak ketiga tanpa melakukan proses pelatihan model (pre-training) maupun pemutakhiran model (fine-tuning) dari tahap awal.
+3.	Input Data
+Menerima data berupa teks digital dan citra jawaban tulis tangan yang terbaca jelas untuk diproses menggunakan mesin Optical Character Recognition (OCR).
+4.	Bahasa
+Sistem dikhususkan untuk analisis jawaban dalam Bahasa Indonesia demi menjaga konsistensi parameter semantik dan validitas pengujian akurasi.
+
+1.5. Manfaat Penelitian
+Manfaat yang dapat dikemukakan pada penelitian ini adalah sebagai berikut.
+1.	Bagi Akademis/Dosen
+Memberikan kontribusi berupa asisten digital yang mampu meminimalisir faktor subjektivitas dan meningkatkan objektivitas penilaian melalui sistem yang terintegrasi dengan rubrik akademik. Hal ini tidak hanya membantu efisiensi waktu dalam proses koreksi tugas rutin, tetapi juga memastikan bahwa parameter penilaian yang bersifat spesifik dan personal dari dosen tetap terjaga keakuratannya.
+2.	Bagi Mahasiswa
+Memfasilitasi proses pembelajaran mandiri melalui penyediaan umpan balik (feedback) yang cepat dan objektif. Dengan adanya transparansi hasil analisis berbasis LLM, mahasiswa dapat segera mengidentifikasi serta memperbaiki pemahaman materi pada bagian yang dinilai kurang tepat.
+3.	Bagi Pengembangan Ilmu Pengetahuan
+Memberikan kontribusi nyata dalam bidang Educational Technology (EdTech) melalui pemodelan arsitektur middleware pada Generative AI. Penelitian ini membuktikan bahwa integrasi LLM dan OCR dapat dioptimalkan untuk kebutuhan administrasi akademik yang kompleks dengan tetap mempertahankan akurasi dan validitas hasil.

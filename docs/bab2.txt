@@ -1,0 +1,37 @@
+BAB II
+TINJAUAN PUSTAKA
+
+2.1 Penelitian Terdahulu
+Penelitian mengenai penilaian esai otomatis telah mengalami evolusi yang signifikan. Penilaian esai manual seringkali menghadapi kendala dalam hal waktu dan kerentanan terhadap subjektivitas penilai. Kondisi ini memicu pengembangan sistem Automated Essay Scoring (AES) yang mampu memberikan evaluasi secara efisien. Ringkasan penelitian terdahulu yang relevan dan valid ditampilkan pada Tabel 2.1.
+Tabel 2.1 Ikhtisar Penelitian.
+No	Peneliti	Metode	Hasil Penelitian
+1	Shermis & Burstein (2013)	Statistical & Keyword Matching	Memberikan fonasi AES lintas disiplin ilmu, namun memiliki keterbatasan dalam memahami kontek semantic jawaban yang kompleks.
+2	Kasneci et al. (2023)	LLM Analysis	Menemukan potensi besar LLM dalam memberikan evaluasi setra tingkat manusia pada tes standar dalam skenario pendidikan.
+3	Memon et al. (2020)	Systematic Literature Review	Membuktikan efektivitas penggunaan teknologi OCR dalam proses digitalisasi dokumen pada sektor pendidikan.
+4	Ugbari (2024)	AI-Driven (GPT-4)	Menemukan bahwa trransisi ke solusi berbasis AI (GPT-4) meningkatkan efisiensi penilaian jawaban singkat dibandingkan metode manual.
+
+Melalui tinjauan pada Tabel 2.1, terdapat celah penelitian (research gap) di mana sistem yang ada belum banyak mengintegrasikan jawaban tulis tangan (OCR) dengan mekanisme orkestrasi rubrik dosen yang dinamis menggunakan middleware. Penelitian ini hadir untuk mengisi celah tersebut dengan mengusulkan sistem Smart Assistant Lecturer.
+
+2.2 Automated Essay Scoring (AES)
+Penilaian esai otomatis merupakan proses pemberian skor pada jawaban esai menggunakan program komputer. Penilaian manual sering terkendala waktu dan rentan terhadap subjektivitas penilai. Kondisi ini memicu kelelahan kognitif dosen yang berujung pada inkonsistensi penilaian. AES dikembangkan untuk memberikan umpan balik (feedback) yang detail dan personal secara cepat
+
+2.3 Large Language Models (LLM)
+LLM merupakan paradigm baru dalam Natural Language Processing (NLP) yang mampu memahami makna semantic secara mendalam. Penggunaan LLM seperti GPT-5 memungkinkan sistem melakukan analisis jawaban yang lebih fleksibel dibandingkan metode tradisional berbasis keyword matching. Namun, implementasi LLM tetap membutuhkan batasan konteks agar terhindar dari risiko halusinasi informasi.
+
+2.4 Handwritten Optical Character Recognition (OCR)
+OCR adalah teknologi yang menonversi citra tulisan tangan menjadi teks digital yang dapat diolah oleh mesin. Penggunaan OCR sangar krussial dalam digitalisasi dokumen sektor pendidikan untuk menjembatani jawaban fisik (tulisan tangan) dengan sistem penilaian digital berbasis bahasa.
+
+2.5 Metrik Evaluasi Performa Sistem
+Untuk menjamin validitas hasil, sistem dievaluasi menggunakan tiga metode pengukuran utama: elitisme.
+1. MAE (Mean Absolute Error)
+Mengukur rata-rata selisih absolut antara skor AI dengan skor manual dosen melalui rumus:
+MAE=  1/n ∑_(i=1)^n▒|y_(i-y ̂_i ) | 
+
+2. Korelasi Statistik
+Mengukur keeratan hubungan dan konsistensi tren penilaian antara sistem dengan dosen pengampu.
+
+3. Confusion Matrix
+Standar evaluasi kinerja model klasifikasi untuk mengukur tingkat akurasi dan konsistensi pemberian kategori nilai (seperti A,B, atau C).
+
+2.6 Kerangka Berpikir
+Kerangka pemikiran penelitian ini dimulai dari identifikasi masalah subjektivitas dan beban kerja dosen di Teknik Informatika UM Bandung. Solusi yang diusulkan adalah membangun middleware yang mengintegrasikan OCR (untuk input tulis tangan) dan LLM (untuk analisis semantik). Hasil akhirnya adalah sistem yang menghasilkan penilaian objektif yang divalidasi menggunakan korelasi, MAE, dan Confusion Matrix.
