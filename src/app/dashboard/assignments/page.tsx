@@ -1,13 +1,31 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
-import { Plus, BookOpen, Users, Clock, ArrowRight, MoreVertical, Search, Filter } from "lucide-react";
+import { Plus, BookOpen, Clock, ArrowRight, MoreVertical, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
+import { format } from "date-fns";
 
-const mockAssignments: any[] = [];
+export default async function AssignmentsPage() {
+    const supabase = await createClient();
 
-export default function AssignmentsPage() {
+    // Fetch assignments from Supabase, order by newest first
+    const { data: rawAssignments, error } = await supabase
+        .from("assignments")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    // Map fetched assignments to the UI structure
+    const assignments = (rawAssignments || []).map((dbItem) => ({
+        id: dbItem.id,
+        title: dbItem.title,
+        course: dbItem.course_code || "General Course",
+        submissions: 0,   // TODO: fetch actual count from submissions table later
+        totalStudents: 0, // TODO: future feature
+        status: dbItem.due_date && new Date(dbItem.due_date) < new Date() ? "Closed" : "Active",
+        dueDate: dbItem.due_date ? format(new Date(dbItem.due_date), "dd MMM yyyy") : "No deadline",
+        avgScore: 0       // TODO: fetch actual avg score from grades table later
+    }));
+
     return (
         <div className="flex flex-col gap-8 pb-12 font-sans">
             {/* Header Section */}
@@ -53,7 +71,7 @@ export default function AssignmentsPage() {
                     </div>
                 </Link>
 
-                {mockAssignments.map((assignment) => (
+                {assignments.map((assignment) => (
                     <div key={assignment.id} className="group bg-white p-7 rounded-[32px] border border-black/[0.03] shadow-[0_2px_10px_0_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_0_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all flex flex-col gap-6 relative overflow-hidden">
                         {/* Status Tag */}
                         <div className="flex items-center justify-between relative z-10">

@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Trash2, ArrowLeft } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { createAssignmentAction } from "./actions";
 
 export default function CreateAssignmentPage() {
     const router = useRouter();
@@ -31,10 +33,35 @@ export default function CreateAssignmentPage() {
     };
 
     const totalWeight = rubrics.reduce((sum, r) => sum + Number(r.weight), 0);
+    const [isPending, startTransition] = useTransition();
 
     const handleSubmit = () => {
-        // TODO: Integrate Server Actions here!
-        console.log("Submit logic hit!");
+        startTransition(async () => {
+            const formData = new FormData();
+
+            // Get inputs explicitly (could define standard React states for these too, but let's grab from inputs directly to speed up)
+            const titleInput = document.getElementById("title") as HTMLInputElement;
+            const courseInput = document.getElementById("course") as HTMLInputElement;
+            const descInput = document.getElementById("description") as HTMLTextAreaElement;
+
+            formData.append("title", titleInput?.value || "");
+            formData.append("courseCode", courseInput?.value || "");
+            formData.append("description", descInput?.value || "");
+            if (date) {
+                formData.append("dueDate", date.toISOString());
+            }
+
+            // Remove the temporary visual IDs before sending
+            const sanitizedRubrics = rubrics.map(({ aspect, weight, description }) => ({ aspect, weight, description }));
+
+            // Execute the action!
+            const response = await createAssignmentAction(formData, sanitizedRubrics);
+
+            if (response?.error) {
+                // To keep it simple, we throw an alert or log. Add toast later for polished UI.
+                alert("Error: " + response.error);
+            }
+        });
     };
 
     return (
@@ -147,8 +174,15 @@ export default function CreateAssignmentPage() {
                     <Button variant="ghost" onClick={() => router.push("/dashboard/assignments")} className="rounded-xl px-6 h-12 text-gray-600 hover:text-black hover:bg-black/5">
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit} disabled={totalWeight !== 100} className="rounded-xl px-8 h-12 bg-black text-white hover:bg-black/90 shadow-lg shadow-black/10 flex items-center gap-2 font-medium">
-                        Deplay AI Grader & Assignment
+                    <Button disabled={totalWeight !== 100 || isPending} onClick={handleSubmit} className="rounded-xl px-8 h-12 bg-black text-white hover:bg-black/90 shadow-lg shadow-black/10 flex items-center gap-2 font-medium">
+                        {isPending ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Deploying...</span>
+                            </>
+                        ) : (
+                            <span>Deploy AI Grader & Assignment</span>
+                        )}
                     </Button>
                 </div>
             </div>
