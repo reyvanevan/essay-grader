@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 import {
     BookOpen,
     LayoutDashboard,
@@ -59,18 +60,20 @@ const navItems = [
 ];
 
 export function DashboardSidebar() {
+    const pathname = usePathname();
+
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-sidebar-primary-foreground">
+                        <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-black/[0.04]">
+                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-b from-[#333] to-[#000] text-white shadow-[0_2px_10px_0_rgba(0,0,0,0.06)]">
                                 <GraduationCap className="size-4" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">SA Lecturer</span>
-                                <span className="truncate text-xs">Technical University</span>
+                                <span className="truncate font-medium text-[#111]">SA Lecturer</span>
+                                <span className="truncate text-xs text-[#555]">Technical University</span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -78,16 +81,27 @@ export function DashboardSidebar() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
+                    <SidebarGroupLabel className="text-[#888] font-medium text-[12px] uppercase tracking-wider mb-1">Menu Utama</SidebarGroupLabel>
                     <SidebarMenu>
-                        {navItems.map((item) => (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton tooltip={item.title} render={<a href={item.url} />}>
-                                    <item.icon />
-                                    <span>{item.title}</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
+                        {navItems.map((item) => {
+                            const isActive = pathname === item.url || (item.url !== "/dashboard" && pathname.startsWith(item.url));
+
+                            return (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton
+                                        tooltip={item.title}
+                                        render={<a href={item.url} />}
+                                        className={`transition-colors flex items-center gap-2 ${isActive
+                                                ? "bg-black/[0.06] text-[#111] font-semibold"
+                                                : "text-[#555] font-medium hover:text-[#111] hover:bg-black/[0.04]"
+                                            }`}
+                                    >
+                                        <item.icon className="h-4 w-4" />
+                                        <span className="text-[14px]">{item.title}</span>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            );
+                        })}
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
@@ -106,8 +120,8 @@ export function DashboardSidebar() {
                                     <AvatarFallback className="rounded-lg">RP</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold text-zinc-900">M Reyvan Purnama</span>
-                                    <span className="truncate text-xs text-zinc-500">Lecturer</span>
+                                    <span className="truncate font-medium text-[#111]">M Reyvan Purnama</span>
+                                    <span className="truncate text-xs text-[#555]">Lecturer</span>
                                 </div>
                                 <ChevronRight className="ml-auto size-4" />
                             </DropdownMenuTrigger>
@@ -124,8 +138,8 @@ export function DashboardSidebar() {
                                             <AvatarFallback className="rounded-lg">RP</AvatarFallback>
                                         </Avatar>
                                         <div className="grid flex-1 text-left text-sm leading-tight">
-                                            <span className="truncate font-semibold">M Reyvan Purnama</span>
-                                            <span className="truncate text-xs">reyvan@umb.ac.id</span>
+                                            <span className="truncate font-medium text-[#111]">M Reyvan Purnama</span>
+                                            <span className="truncate text-xs text-[#555]">reyvan@umb.ac.id</span>
                                         </div>
                                     </div>
                                 </DropdownMenuLabel>

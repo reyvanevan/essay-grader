@@ -19,26 +19,26 @@ export default function DashboardLayout({
         <SidebarProvider>
             <DashboardSidebar />
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+                <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b border-black/[0.04] bg-white/40 backdrop-blur-md sticky top-0 z-10">
                     <div className="flex items-center gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="/dashboard">
+                                    <BreadcrumbLink href="/dashboard" className="text-[#555] hover:text-[#111] transition-colors">
                                         Lecturer Panel
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>
-                                <BreadcrumbSeparator className="hidden md:block" />
+                                <BreadcrumbSeparator className="hidden md:block text-[#888]" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Overview</BreadcrumbPage>
+                                    <BreadcrumbPage className="font-medium text-[#111]">Overview</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
                     </div>
                 </header>
-                <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-zinc-50/50">
+                <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-[#f8f9fa]">
                     {children}
                 </main>
             </SidebarInset>

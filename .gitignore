@@ -42,7 +42,3 @@ next-env.d.ts
 
 # docs
 docs/
-docs/groq-apikey.txt
-docs/root-droplet.txt
-docs/service-role-supabase.txt
-docs/debug-api.txt

@@ -1,236 +1,157 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Sparkles,
-  ScanSearch,
-  BookOpenCheck,
-  Scale,
-  ArrowRight,
-  ShieldCheck,
-  Zap,
-  GraduationCap
-} from "lucide-react";
+"use client";
+
+import { motion } from 'framer-motion';
+import { Star, ScanSearch, BookOpenCheck, Scale, ShieldCheck, ArrowRight, GraduationCap } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LandingPage() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    },
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-white text-zinc-900 selection:bg-indigo-100 selection:text-indigo-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-zinc-100 bg-white/80 backdrop-blur-md">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+      <motion.nav
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 sm:px-6 pt-4 sm:pt-6"
+      >
+        <div className="w-full max-w-[1200px] flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 rounded-full backdrop-blur-2xl backdrop-saturate-150 bg-white/40 border border-white/60 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
-              <GraduationCap className="h-5 w-5" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-b from-[#333] to-[#000] text-white shadow-sm">
+              <GraduationCap className="h-4 w-4" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-zinc-900">
-              Smart<span className="text-indigo-600">Assistant</span>
+            <span className="text-[18px] font-semibold tracking-tight text-[#111]">
+              SmartAssistant
             </span>
           </div>
-          <nav className="hidden space-x-8 md:flex">
-            <Link href="#features" className="text-sm font-medium text-zinc-600 transition-colors hover:text-indigo-600">
+          <div className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[#444]">
+            <a href="#features" className="hover:text-black transition-colors">
               Features
-            </Link>
-            <Link href="#how-it-works" className="text-sm font-medium text-zinc-600 transition-colors hover:text-indigo-600">
+            </a>
+            <a href="#how-it-works" className="hover:text-black transition-colors">
               How it Works
-            </Link>
-            <Link href="#about" className="text-sm font-medium text-zinc-600 transition-colors hover:text-indigo-600">
-              About
-            </Link>
-          </nav>
+            </a>
+          </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost" className="hidden font-medium text-zinc-600 sm:inline-flex">
-                Log in
-              </Button>
+            <Link href="/login" className="hidden font-medium text-[14px] text-[#555] transition-colors hover:text-[#111] sm:inline-flex">
+              Log in
             </Link>
-            <Link href="/dashboard">
-              <Button className="bg-indigo-600 font-medium text-white shadow-lg shadow-indigo-100 transition-all hover:bg-indigo-700 hover:shadow-indigo-200">
-                Go to Dashboard
-              </Button>
+            <Link href="/dashboard" className="px-5 py-2.5 rounded-full text-white font-medium text-[14px] bg-gradient-to-b from-[#333] to-[#000] border border-[#444] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:from-[#444] hover:to-[#111] hover:border-[#666] hover:scale-105 active:scale-95">
+              Demo
             </Link>
           </div>
         </div>
-      </header>
+      </motion.nav>
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-20 pb-24 md:pt-32 md:pb-40">
-          <div className="absolute left-1/2 top-0 -z-10 h-[600px] w-full -translate-x-1/2 overflow-hidden blur-3xl">
-            <div className="absolute -left-[10%] top-0 h-[400px] w-[500px] rounded-full bg-indigo-50 opacity-50 transition-all duration-700" />
-            <div className="absolute -right-[10%] top-20 h-[500px] w-[500px] rounded-full bg-blue-50 opacity-40 transition-all duration-700" />
+        <section className="relative w-full min-h-screen flex justify-center overflow-hidden bg-white pt-20">
+          {/* Background Video */}
+          <div className="absolute inset-0 z-0 w-full h-full pointer-events-none">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover [transform:scaleY(-1)]"
+            >
+              <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260302_085640_276ea93b-d7da-4418-a09b-2aa5b490e838.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[26%] to-white to-[70%]" />
           </div>
 
-          <div className="container mx-auto px-4 text-center md:px-6">
-            <Badge variant="outline" className="mb-6 border-indigo-100 bg-indigo-50/50 px-4 py-1.5 text-indigo-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <Sparkles className="mr-2 h-3.5 w-3.5" />
-              Powered by Llama 3.3-70b
-            </Badge>
-            <h1 className="mx-auto mb-8 max-w-4xl text-5xl font-extrabold tracking-tight text-zinc-950 sm:text-6xl md:text-7xl">
-              Automated Essay Grading <br />
-              <span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
-                With Deep Semantic Analysis
-              </span>
-            </h1>
-            <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-zinc-600 md:text-xl">
-              A comprehensive Smart Assistant Lecturer designed to provide objective,
-              consistent, and precise essay evaluations using state-of-the-art LLM and OCR technology.
-            </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/dashboard">
-                <Button size="lg" className="h-14 bg-indigo-600 px-8 text-lg font-semibold text-white shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700 hover:shadow-indigo-200">
-                  Join the Thesis Demo
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="#features">
-                <Button variant="outline" size="lg" className="h-14 h-14 border-zinc-200 px-8 text-lg font-medium text-zinc-700 transition-all hover:bg-zinc-50">
-                  Explore Features
-                </Button>
-              </Link>
-            </div>
+          <motion.div
+            className="relative z-10 w-full max-w-[1200px] flex flex-col items-center pt-[80px] md:pt-[140px] px-6 gap-[24px] md:gap-[32px] text-center"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.h1
+              variants={itemVariants}
+              className="font-medium tracking-[-0.04em] text-[#111] text-[42px] sm:text-5xl md:text-[80px] leading-[1.1]"
+            >
+              Grading student essays <br className="hidden sm:block" />
+              <span className="font-[family-name:var(--font-instrument)] italic font-normal text-[54px] sm:text-6xl md:text-[100px] leading-[1.1] text-indigo-600">
+                objectively
+              </span>{' '}
+              at speed
+            </motion.h1>
 
-            {/* Dashboard Preview Decoy */}
-            <div className="mt-20 flex aspect-[16/9] w-full max-w-5xl translate-y-4 items-center justify-center overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50/50 p-2 shadow-2xl md:mt-24">
-              <div className="relative h-full w-full overflow-hidden rounded-xl bg-white shadow-inner">
-                <div className="flex h-full w-full flex-col p-6">
-                  <div className="flex items-center justify-between border-b pb-4">
-                    <div className="h-6 w-32 rounded-md bg-zinc-100"></div>
-                    <div className="flex space-x-2">
-                      <div className="h-8 w-8 rounded-full bg-zinc-100"></div>
-                      <div className="h-8 w-24 rounded-md bg-zinc-100"></div>
-                    </div>
-                  </div>
-                  <div className="grid flex-1 grid-cols-12 gap-6 pt-6">
-                    <div className="col-span-3 space-y-4">
-                      <div className="h-10 w-full rounded-md bg-zinc-50"></div>
-                      <div className="h-10 w-full rounded-md bg-indigo-50"></div>
-                      <div className="h-10 w-full rounded-md bg-zinc-50"></div>
-                    </div>
-                    <div className="col-span-9 rounded-md border border-dashed border-zinc-200 bg-white/50 p-8 flex flex-col items-center justify-center space-y-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                        <BookOpenCheck className="h-8 w-8" />
-                      </div>
-                      <div className="h-4 w-48 rounded bg-zinc-100"></div>
-                      <div className="h-4 w-32 rounded bg-zinc-50"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            <motion.p
+              variants={itemVariants}
+              className="text-[16px] md:text-[18px] text-[#555] max-w-[554px] leading-relaxed"
+            >
+              Stop doing manual work. We build high-performance assessment systems that automate scale for forward-thinking universities and lecturers.
+            </motion.p>
+
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4 mt-4">
+              <Link href="/dashboard" className="px-8 py-3.5 rounded-full text-white font-medium text-[15px] bg-gradient-to-b from-[#333] to-[#000] border border-[#444] shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:from-[#444] hover:to-[#111] hover:border-[#666] hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                Go to Dashboard
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
+          </motion.div>
         </section>
 
         {/* Features Section */}
-        <section id="features" className="bg-zinc-50 py-24 md:py-32">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="mb-16 text-center">
-              <h2 className="mb-4 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl md:text-5xl">
-                Built for Precision & Efficiency
+        <section id="features" className="py-24 md:py-32 bg-zinc-50/50">
+          <div className="container mx-auto px-6 max-w-[1200px]">
+            <div className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
+              <h2 className="text-[32px] md:text-[54px] font-medium tracking-tight text-[#111] leading-[1.1] max-w-xl">
+                Built for <span className="font-[family-name:var(--font-instrument)] italic font-normal text-indigo-600">precision</span> & efficiency
               </h2>
-              <p className="mx-auto max-w-2xl text-lg text-zinc-600">
+              <p className="text-[#555] max-w-sm text-[16px] md:text-[18px]">
                 Combining human-level understanding with machine-speed processing.
               </p>
             </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 {
                   title: "Semantic Analysis",
-                  description: "Leverages LLM to understand contextual meanings, not just keyword matching.",
+                  desc: "Leverages LLM to understand contextual meanings, not just keywords.",
                   icon: ScanSearch,
-                  color: "indigo"
                 },
                 {
                   title: "OCR Integration",
-                  description: "Directly process handwritten essay submissions using advanced Optical Character Recognition.",
+                  desc: "Directly process handwritten essay submissions accurately.",
                   icon: BookOpenCheck,
-                  color: "blue"
                 },
                 {
                   title: "Custom Rubrics",
-                  description: "Dynamically adapt to specific lecturer criteria and assessment standards.",
+                  desc: "Dynamically adapt to specific lecturer criteria.",
                   icon: Scale,
-                  color: "violet"
                 },
                 {
-                  title: "Objective Feedback",
-                  description: "Consistent evaluations free from human fatigue and subjective bias.",
+                  title: "Objective",
+                  desc: "Consistent evaluations free from subjective bias.",
                   icon: ShieldCheck,
-                  color: "emerald"
                 }
               ].map((feature, idx) => (
-                <Card key={idx} className="group border-zinc-200 bg-white transition-all hover:-translate-y-2 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50">
-                  <CardContent className="pt-8">
-                    <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-${feature.color}-50 text-${feature.color}-600 transition-colors group-hover:bg-${feature.color}-600 group-hover:text-white`}>
-                      <feature.icon className="h-7 w-7" />
-                    </div>
-                    <h3 className="mb-3 text-xl font-bold text-zinc-900">{feature.title}</h3>
-                    <p className="leading-relaxed text-zinc-600">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Stats / Proof Section */}
-        <section className="py-24">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-12 rounded-3xl bg-indigo-900 px-8 py-16 text-white md:grid-cols-3 md:px-16">
-              <div className="text-center">
-                <div className="mb-2 text-5xl font-extrabold text-white sm:text-6xl">95%</div>
-                <div className="text-indigo-200/80">MAE Correlation</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-5xl font-extrabold text-white sm:text-6xl">&lt; 5s</div>
-                <div className="text-indigo-200/80">Processing Time</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-5xl font-extrabold text-white sm:text-6xl">100%</div>
-                <div className="text-indigo-200/80">Consistency Rate</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How it Works Section */}
-        <section id="how-it-works" className="py-24 md:py-32">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="mb-16 flex flex-col items-center justify-between gap-6 md:flex-row md:items-end">
-              <div className="max-w-xl">
-                <Badge className="mb-4 bg-indigo-600">The Workflow</Badge>
-                <h2 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl md:text-5xl">
-                  From Handwriting <br /> to Detailed Analysis
-                </h2>
-              </div>
-              <p className="max-w-sm text-zinc-600">
-                Our seamless pipeline ensures every word is accounted for and every idea is evaluated fairly.
-              </p>
-            </div>
-            <div className="grid gap-12 lg:grid-cols-3">
-              {[
-                {
-                  step: "01",
-                  title: "Submission",
-                  desc: "Student uploads digital text or an image of their handwritten essay response."
-                },
-                {
-                  step: "02",
-                  title: "OCR & Analysis",
-                  desc: "System digitizes input and Llama AI evaluates it against customized lecturer rubrics."
-                },
-                {
-                  step: "03",
-                  title: "Instant Results",
-                  desc: "Detailed feedback, score reasoning, and quantitative grades are delivered instantly."
-                }
-              ].map((step, idx) => (
-                <div key={idx} className="group relative">
-                  <span className="mb-6 block text-7xl font-black text-indigo-50 transition-colors group-hover:text-indigo-100/50">
-                    {step.step}
-                  </span>
-                  <h3 className="mb-4 text-2xl font-bold text-zinc-900">{step.title}</h3>
-                  <p className="text-lg leading-relaxed text-zinc-600">{step.desc}</p>
+                <div key={idx} className="group flex flex-col gap-4 rounded-[24px] bg-white p-8 border border-black/[0.04] shadow-[0_2px_10px_0_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_30px_0_rgba(0,0,0,0.06)] hover:-translate-y-1">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/[0.03] text-[#111] transition-transform group-hover:scale-110">
+                    <feature.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-xl font-medium text-[#111]">{feature.title}</h3>
+                  <p className="text-[15px] leading-relaxed text-[#555]">{feature.desc}</p>
                 </div>
               ))}
             </div>
@@ -239,24 +160,19 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer id="about" className="border-t border-zinc-100 bg-white py-12 md:py-20 text-center">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-8 flex items-center justify-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-              <GraduationCap className="h-4 w-4" />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-zinc-900">
-              Smart<span className="text-indigo-600">Assistant</span>
+      <footer className="border-t border-black/[0.05] bg-white py-12 md:py-16">
+        <div className="container mx-auto px-6 flex flex-col items-center justify-center text-center gap-6 max-w-[1200px]">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-[#111]" />
+            <span className="text-lg font-medium tracking-tight text-[#111]">
+              SmartAssistant
             </span>
           </div>
-          <p className="mx-auto mb-8 max-w-md text-zinc-500">
-            A Bachelor Thesis Project at Universitas Muhammadiyah Bandung.
-            Focusing on the intersection of Generative AI and Education.
+          <p className="max-w-md text-[#555] text-[14px]">
+            A Bachelor Thesis Project at Universitas Muhammadiyah Bandung. Focusing on the intersection of Generative AI and Education.
           </p>
-          <div className="flex justify-center space-x-6 text-sm font-medium text-zinc-400">
-            <span>&copy; 2026 M Reyvan Purnama</span>
-            <span>220102043</span>
-            <span>Teknik Informatika</span>
+          <div className="text-[13px] text-[#888]">
+            &copy; 2026 M Reyvan Purnama (220102043)
           </div>
         </div>
       </footer>
