@@ -60,22 +60,23 @@ export default function LandingPage() {
         </div>
       </motion.nav>
 
-      <main className="flex-1">
+      {/* Sticky Background Video */}
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-0 w-full h-screen pointer-events-none">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover [transform:scaleY(-1)]"
+        >
+          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260302_085640_276ea93b-d7da-4418-a09b-2aa5b490e838.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[26%] to-white to-[70%]" />
+      </div>
+
+      <main className="flex-1 relative z-10">
         {/* Hero Section */}
-        <section className="relative w-full min-h-screen flex justify-center overflow-hidden bg-white pt-20">
-          {/* Background Video */}
-          <div className="absolute inset-0 z-0 w-full h-full pointer-events-none">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover [transform:scaleY(-1)]"
-            >
-              <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260302_085640_276ea93b-d7da-4418-a09b-2aa5b490e838.mp4" type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[26%] to-white to-[70%]" />
-          </div>
+        <section className="relative w-full min-h-screen flex justify-center overflow-visible bg-transparent pt-20">
 
           <motion.div
             className="relative z-10 w-full max-w-[1200px] flex flex-col items-center pt-[80px] md:pt-[140px] px-6 gap-[24px] md:gap-[32px] text-center"
@@ -111,7 +112,7 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-24 md:py-32 bg-zinc-50/50">
+        <section id="features" className="relative z-20 py-24 md:py-32 bg-zinc-50/50">
           <div className="container mx-auto px-6 max-w-[1200px]">
             <div className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8">
               <h2 className="text-[32px] md:text-[54px] font-medium tracking-tight text-[#111] leading-[1.1] max-w-xl">
