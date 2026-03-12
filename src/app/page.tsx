@@ -67,11 +67,10 @@ export default function LandingPage() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover [transform:scaleY(-1)]"
+          className="w-full h-full object-cover [transform:scale(1.6)_scaleY(-1)]"
         >
           <source src="/bg-video.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[26%] to-white to-[70%]" />
       </div>
 
       <main className="flex-1 relative z-10">
