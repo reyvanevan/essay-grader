@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Star, ScanSearch, BookOpenCheck, Scale, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpenCheck, Scale, ScanSearch, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -69,7 +69,7 @@ export default function LandingPage() {
           playsInline
           className="w-full h-full object-cover [transform:scaleY(-1)]"
         >
-          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260302_085640_276ea93b-d7da-4418-a09b-2aa5b490e838.mp4" type="video/mp4" />
+          <source src="/bg-video.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[26%] to-white to-[70%]" />
       </div>
