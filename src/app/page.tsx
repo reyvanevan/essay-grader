@@ -60,17 +60,13 @@ export default function LandingPage() {
         </div>
       </motion.nav>
 
-      {/* Sticky Background Video */}
+      {/* Sticky Background Image */}
       <div className="fixed top-0 left-0 right-0 bottom-0 z-0 w-full h-screen pointer-events-none">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover [transform:scale(1.6)_scaleY(-1)]"
-        >
-          <source src="/bg-video.mp4" type="video/mp4" />
-        </video>
+        <img
+          src="/bg-image.jpg"
+          alt="Background"
+          className="w-full h-full object-cover"
+        />
       </div>
 
       <main className="flex-1 relative z-10">
