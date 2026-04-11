@@ -1,5 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
     Users,
     FileCheck2,
@@ -62,7 +60,6 @@ export default function DashboardOverview() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-7 mt-8">
-                {/* Statistik Penilaian */}
                 <div className="md:col-span-4 bg-white p-7 md:p-8 rounded-[32px] border border-black/[0.04] shadow-sm flex flex-col transition-shadow hover:shadow-md">
                     <div className="mb-6">
                         <h2 className="text-[20px] font-semibold text-[#111] tracking-tight">Statistik Penilaian</h2>
@@ -75,7 +72,6 @@ export default function DashboardOverview() {
                     </div>
                 </div>
 
-                {/* Aktivitas Terkini */}
                 <div className="md:col-span-3 bg-white p-7 md:p-8 rounded-[32px] border border-black/[0.04] shadow-sm flex flex-col transition-shadow hover:shadow-md">
                     <div className="flex items-center justify-between mb-8">
                         <div>
