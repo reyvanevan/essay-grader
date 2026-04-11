@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,64 +56,81 @@ export function SubmissionCreateForm({ assignmentId }: SubmissionCreateFormProps
   };
 
   return (
-    <div className="bg-white border border-black/[0.06] rounded-3xl p-6 flex flex-col gap-4">
-      <div>
-        <h3 className="text-lg font-semibold text-[#111]">Create Submission (Text-Only v1)</h3>
-        <p className="text-sm text-gray-500">
-          Submission will be queued automatically for LLM grading.
-        </p>
-      </div>
+    <details className="group rounded-[28px] border border-black/8 bg-white shadow-[0_12px_30px_rgba(10,10,10,0.04)]">
+      <summary className="list-none cursor-pointer px-5 py-4 sm:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+              <Plus className="size-3.5" />
+              Manual Input Utility
+            </div>
+            <h3 className="text-lg font-semibold tracking-tight text-stone-950">
+              Add a new submission
+            </h3>
+            <p className="mt-1 text-sm text-stone-500">
+              Collapsed by default so the review inbox stays front and center on mobile.
+            </p>
+          </div>
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-stone-50 text-stone-500 transition-transform group-open:rotate-180">
+            <ChevronDown className="size-4" />
+          </div>
+        </div>
+      </summary>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="studentName">Student Name</Label>
-          <Input
-            id="studentName"
-            value={studentName}
-            onChange={(event) => setStudentName(event.target.value)}
-            placeholder="e.g. Budi Setiawan"
+      <div className="border-t border-black/6 px-5 pb-5 pt-5 sm:px-6 sm:pb-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="studentName">Student Name</Label>
+            <Input
+              id="studentName"
+              value={studentName}
+              onChange={(event) => setStudentName(event.target.value)}
+              placeholder="e.g. Budi Setiawan"
+              className="h-11 rounded-xl bg-stone-50"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="studentIdentifier">Student Identifier</Label>
+            <Input
+              id="studentIdentifier"
+              value={studentIdentifier}
+              onChange={(event) => setStudentIdentifier(event.target.value)}
+              placeholder="e.g. 230123456"
+              className="h-11 rounded-xl bg-stone-50"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <Label htmlFor="answerText">Student Answer</Label>
+          <Textarea
+            id="answerText"
+            value={answerText}
+            onChange={(event) => setAnswerText(event.target.value)}
+            placeholder="Paste student essay answer here..."
+            className="min-h-32 rounded-[24px] bg-stone-50"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="studentIdentifier">Student Identifier</Label>
-          <Input
-            id="studentIdentifier"
-            value={studentIdentifier}
-            onChange={(event) => setStudentIdentifier(event.target.value)}
-            placeholder="e.g. 230123456"
-          />
+
+        {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
+
+        <div className="mt-5 flex justify-end">
+          <Button
+            onClick={handleCreateSubmission}
+            disabled={isPending || !studentName || !studentIdentifier || !answerText}
+            className="h-11 rounded-xl bg-stone-950 px-5 text-white hover:bg-stone-800"
+          >
+            {isPending ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                Submitting...
+              </span>
+            ) : (
+              "Submit and Grade"
+            )}
+          </Button>
         </div>
       </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="answerText">Student Answer</Label>
-        <Textarea
-          id="answerText"
-          value={answerText}
-          onChange={(event) => setAnswerText(event.target.value)}
-          placeholder="Paste student essay answer here..."
-          className="min-h-28"
-        />
-      </div>
-
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-      <div className="flex justify-end">
-        <Button
-          onClick={handleCreateSubmission}
-          disabled={isPending || !studentName || !studentIdentifier || !answerText}
-          className="rounded-xl"
-        >
-          {isPending ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Submitting...
-            </span>
-          ) : (
-            "Submit & Enqueue"
-          )}
-        </Button>
-      </div>
-    </div>
+    </details>
   );
 }
