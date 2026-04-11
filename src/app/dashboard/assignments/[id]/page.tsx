@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Clock, Users, BrainCircuit } from "lucide-react";
 import { SubmissionCreateForm } from "@/components/grading/submission-create-form";
 import { SubmissionGradeCard } from "@/components/grading/submission-grade-card";
+import { AssignmentRealtimeListener } from "@/components/grading/assignment-realtime-listener";
 
 type AssignmentRow = {
   id: string;
@@ -129,6 +130,7 @@ export default async function AssignmentDetailPage({
 
   return (
     <div className="flex flex-col gap-8 pb-12 font-sans max-w-6xl mx-auto w-full">
+      <AssignmentRealtimeListener assignmentId={assignmentId} />
       <div className="flex flex-col gap-6">
         <Link
           href="/dashboard/assignments"
