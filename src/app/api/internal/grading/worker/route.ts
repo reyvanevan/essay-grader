@@ -7,13 +7,22 @@ const workerBodySchema = z.object({
 });
 
 function isWorkerAuthorized(request: Request): boolean {
-  const secret = process.env.INTERNAL_WORKER_SECRET;
-  if (!secret) {
+  const internalSecret = process.env.INTERNAL_WORKER_SECRET;
+  const cronSecret = process.env.CRON_SECRET;
+  if (!internalSecret && !cronSecret) {
     return true;
   }
 
-  const supplied = request.headers.get("x-internal-worker-secret");
-  return supplied === secret;
+  const suppliedHeader = request.headers.get("x-internal-worker-secret");
+  const authHeader = request.headers.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length).trim()
+    : null;
+
+  return [suppliedHeader, bearerToken].some((value) => {
+    if (!value) return false;
+    return value === internalSecret || value === cronSecret;
+  });
 }
 
 export async function POST(request: Request) {
