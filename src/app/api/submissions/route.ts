@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { processGradingBatch } from "@/lib/grading/worker";
 
 const submissionSchema = z.object({
   assignmentId: z.string().uuid(),
@@ -71,6 +72,14 @@ export async function POST(request: Request) {
       { error: `Failed to enqueue grading job: ${jobError?.message ?? "unknown"}` },
       { status: 500 }
     );
+  }
+
+  // Best-effort fallback for low-cost environments (e.g., Vercel Hobby cron limits).
+  // This keeps the queue moving even when high-frequency cron is unavailable.
+  try {
+    await processGradingBatch(1);
+  } catch (error) {
+    console.error("Best-effort inline worker run failed:", error);
   }
 
   return NextResponse.json(
