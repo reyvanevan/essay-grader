@@ -1,9 +1,19 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, ArrowRight, MoreVertical, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { format } from "date-fns";
+import {
+  ArrowRight,
+  CalendarClock,
+  ClipboardCheck,
+  Filter,
+  Plus,
+  Search,
+  Sparkles,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 
 type AssignmentRow = {
   id: string;
@@ -13,133 +23,255 @@ type AssignmentRow = {
   created_at: string;
 };
 
+type SubmissionRow = {
+  id: string;
+  assignment_id: string;
+  status: string;
+};
+
+type GradeRow = {
+  submission_id: string;
+  final_score: number | null;
+};
+
 export default async function AssignmentsPage() {
   const supabase = await createClient();
 
-  const { data: rawAssignments } = await supabase
-    .from("assignments")
-    .select("id, title, course_code, due_date, created_at")
-    .order("created_at", { ascending: false })
-    .returns<AssignmentRow[]>();
+  const [{ data: rawAssignments }, { data: submissions }, { data: grades }] = await Promise.all([
+    supabase
+      .from("assignments")
+      .select("id, title, course_code, due_date, created_at")
+      .order("created_at", { ascending: false })
+      .returns<AssignmentRow[]>(),
+    supabase.from("submissions").select("id, assignment_id, status").returns<SubmissionRow[]>(),
+    supabase.from("grades").select("submission_id, final_score").returns<GradeRow[]>(),
+  ]);
 
-  const assignments = (rawAssignments || []).map((dbItem) => ({
-    id: dbItem.id,
-    title: dbItem.title,
-    course: dbItem.course_code || "General Course",
-    submissions: 0,
-    totalStudents: 0,
-    status: dbItem.due_date && new Date(dbItem.due_date) < new Date() ? "Closed" : "Active",
-    dueDate: dbItem.due_date ? format(new Date(dbItem.due_date), "dd MMM yyyy") : "No deadline",
-    avgScore: 0,
-  }));
+  const submissionList = submissions || [];
+  const gradeBySubmissionId = new Map(
+    (grades || []).map((grade) => [grade.submission_id, grade.final_score])
+  );
+
+  const assignments = (rawAssignments || []).map((dbItem) => {
+    const assignmentSubmissions = submissionList.filter(
+      (submission) => submission.assignment_id === dbItem.id
+    );
+    const gradedSubmissions = assignmentSubmissions.filter(
+      (submission) => submission.status === "graded"
+    );
+    const finalScores = gradedSubmissions
+      .map((submission) => gradeBySubmissionId.get(submission.id))
+      .filter((score): score is number => typeof score === "number");
+
+    const avgScore = finalScores.length
+      ? Math.round(finalScores.reduce((sum, score) => sum + score, 0) / finalScores.length)
+      : null;
+
+    return {
+      id: dbItem.id,
+      title: dbItem.title,
+      course: dbItem.course_code || "General Course",
+      status: dbItem.due_date && new Date(dbItem.due_date) < new Date() ? "Closed" : "Active",
+      dueDate: dbItem.due_date ? format(new Date(dbItem.due_date), "dd MMM yyyy") : "No deadline",
+      submissions: assignmentSubmissions.length,
+      graded: gradedSubmissions.length,
+      avgScore,
+    };
+  });
+
+  const totalAssignments = assignments.length;
+  const activeAssignments = assignments.filter((assignment) => assignment.status === "Active").length;
+  const totalSubmissions = assignments.reduce((sum, assignment) => sum + assignment.submissions, 0);
+  const pendingReview = assignments.reduce(
+    (sum, assignment) => sum + (assignment.submissions - assignment.graded),
+    0
+  );
 
   return (
-    <div className="flex flex-col gap-8 pb-12 font-sans">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-[32px] font-bold tracking-tight text-[#111]">Assignments</h1>
-          <p className="text-gray-500">Manage your course assessment and grading rubrics.</p>
+    <div className="flex flex-col gap-6 pb-12 font-sans">
+      <div className="relative overflow-hidden rounded-[36px] border border-black/8 bg-[linear-gradient(135deg,#f4efe6_0%,#fffdf9_42%,#f7f1ea_100%)] p-5 shadow-[0_24px_80px_rgba(10,10,10,0.08)] sm:p-8">
+        <div className="absolute -right-14 -top-16 h-52 w-52 rounded-full bg-[radial-gradient(circle,_rgba(188,160,120,0.18),_transparent_70%)]" />
+        <div className="absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-[radial-gradient(circle,_rgba(86,102,94,0.10),_transparent_72%)]" />
+
+        <div className="relative z-10 flex flex-col gap-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="border-stone-200 bg-white/80 text-stone-700">
+                  Review Pipeline
+                </Badge>
+                <Badge variant="outline" className="border-stone-200 bg-white/80 text-stone-700">
+                  Assignment Command Center
+                </Badge>
+              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                Editorial Control Room
+              </p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                Assignments
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600 sm:text-base">
+                Scan which assignments are live, how many submissions have arrived, and where lecturer review is still waiting.
+              </p>
+            </div>
+
+            <Link href="/dashboard/assignments/new">
+              <Button className="h-11 rounded-xl bg-stone-950 px-5 text-white hover:bg-stone-800">
+                <Plus className="size-4" />
+                Create Assignment
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <Sparkles className="size-3.5" />
+                Total Assignments
+              </div>
+              <p className="mt-3 text-2xl font-semibold tracking-tight text-stone-950">
+                {totalAssignments}
+              </p>
+            </div>
+            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <CalendarClock className="size-3.5" />
+                Active Now
+              </div>
+              <p className="mt-3 text-2xl font-semibold tracking-tight text-stone-950">
+                {activeAssignments}
+              </p>
+            </div>
+            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <Users className="size-3.5" />
+                Total Submissions
+              </div>
+              <p className="mt-3 text-2xl font-semibold tracking-tight text-stone-950">
+                {totalSubmissions}
+              </p>
+            </div>
+            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <ClipboardCheck className="size-3.5" />
+                Pending Review
+              </div>
+              <p className="mt-3 text-2xl font-semibold tracking-tight text-stone-950">
+                {pendingReview}
+              </p>
+            </div>
+          </div>
         </div>
-        <Link href="/dashboard/assignments/new">
-          <Button className="h-12 px-6 rounded-full bg-gradient-to-b from-[#333] to-[#000] font-medium text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_4px_12px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 border border-[#444] hover:from-[#444] hover:to-[#111] hover:border-[#666]">
-            <Plus className="w-5 h-5" />
-            <span>New Assignment</span>
-          </Button>
-        </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-4 rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)] sm:flex-row sm:items-center sm:p-6">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-stone-400" />
           <Input
             placeholder="Search assignments..."
-            className="pl-11 h-12 rounded-full border-black/[0.08] bg-white shadow-sm focus:border-black focus:ring-1 focus:ring-black transition-all outline-none"
+            className="h-12 rounded-full border-stone-200 bg-stone-50 pl-11 shadow-none focus:border-stone-400"
           />
         </div>
         <Button
           variant="outline"
-          className="h-12 px-6 rounded-full border border-black/[0.08] bg-white flex items-center gap-2 text-gray-600 hover:text-black shadow-sm font-medium hover:bg-gray-50 transition-all"
+          className="h-12 rounded-full border-stone-200 bg-white px-5 text-stone-600 hover:bg-stone-50 hover:text-stone-950"
         >
-          <Filter className="w-4 h-4" />
+          <Filter className="size-4" />
           Filters
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <Link href="/dashboard/assignments/new">
-          <div className="group border-2 border-dashed border-gray-200 rounded-[32px] p-8 flex flex-col items-center justify-center gap-4 hover:border-black/30 hover:bg-gray-50/50 transition-all cursor-pointer h-full min-h-[250px]">
-            <div className="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center group-hover:scale-110 group-hover:bg-black group-hover:text-white text-gray-400 transition-all">
-              <Plus className="w-6 h-6" />
-            </div>
-            <div className="text-center">
-              <p className="font-semibold text-gray-800 group-hover:text-black">Create New Assignment</p>
-              <p className="text-sm text-gray-500 text-balance mt-1">Set up a new task with AI grading rubric.</p>
-            </div>
+      <div className="space-y-4">
+        {assignments.length === 0 ? (
+          <div className="rounded-[32px] border border-dashed border-stone-300 bg-white px-6 py-14 text-center shadow-[0_16px_30px_rgba(10,10,10,0.04)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+              Empty Pipeline
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
+              No assignments yet
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-500">
+              Start by creating your first assignment and the review workspace will grow from there.
+            </p>
+            <Link href="/dashboard/assignments/new" className="mt-6 inline-flex">
+              <Button className="h-11 rounded-xl bg-stone-950 px-5 text-white hover:bg-stone-800">
+                <Plus className="size-4" />
+                Create first assignment
+              </Button>
+            </Link>
           </div>
-        </Link>
+        ) : (
+          assignments.map((assignment) => (
+            <Link key={assignment.id} href={`/dashboard/assignments/${assignment.id}`}>
+              <div className="group rounded-[30px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(10,10,10,0.08)] sm:p-6">
+                <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={
+                          assignment.status === "Active"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-stone-200 bg-stone-100 text-stone-600"
+                        }
+                      >
+                        {assignment.status}
+                      </Badge>
+                      <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+                        {assignment.course}
+                      </Badge>
+                    </div>
+                    <h2 className="text-xl font-semibold tracking-tight text-stone-950 sm:text-2xl">
+                      {assignment.title}
+                    </h2>
+                    <p className="mt-2 text-sm text-stone-500">
+                      Due {assignment.dueDate}
+                    </p>
+                  </div>
 
-        {assignments.map((assignment) => (
-          <Link key={assignment.id} href={`/dashboard/assignments/${assignment.id}`}>
-            <div className="group bg-white p-7 rounded-[32px] border border-black/[0.03] shadow-[0_2px_10px_0_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_0_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all flex flex-col gap-6 relative overflow-hidden h-full">
-              <div className="flex items-center justify-between relative z-10">
-                <span
-                  className={`px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider ${
-                    assignment.status === "Active"
-                      ? "bg-green-50 text-green-600"
-                      : "bg-gray-50 text-gray-400"
-                  }`}
-                >
-                  {assignment.status}
-                </span>
-                <button className="p-2 hover:bg-gray-50 rounded-full transition-colors">
-                  <MoreVertical className="w-5 h-5 text-gray-400" />
-                </button>
-              </div>
+                  <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[430px]">
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">
+                        Submissions
+                      </p>
+                      <p className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
+                        {assignment.submissions}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">
+                        Graded
+                      </p>
+                      <p className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
+                        {assignment.graded}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-stone-200 bg-stone-950 px-4 py-3 text-white">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-white/60">
+                        Avg Score
+                      </p>
+                      <p className="mt-2 text-2xl font-semibold tracking-tight">
+                        {assignment.avgScore ?? "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="relative z-10">
-                <h3 className="text-xl font-bold text-[#111] mb-1 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                  {assignment.title}
-                </h3>
-                <p className="text-gray-400 font-medium text-sm">{assignment.course}</p>
-              </div>
-
-              <div className="relative z-10 flex items-center gap-6">
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold tracking-tight text-[#111]">
-                    {assignment.submissions}
-                    <span className="text-gray-300 font-normal">/{assignment.totalStudents}</span>
-                  </span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                    Submissions
+                <div className="mt-5 flex items-center justify-between border-t border-stone-100 pt-4 text-sm">
+                  <p className="text-stone-500">
+                    {assignment.submissions - assignment.graded > 0
+                      ? `${assignment.submissions - assignment.graded} submissions still need review`
+                      : "All current submissions have been graded"}
+                  </p>
+                  <span className="inline-flex items-center gap-2 font-semibold text-stone-950">
+                    Open workspace
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </div>
-                <div className="w-[1px] h-10 bg-gray-100"></div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold tracking-tight text-indigo-600">
-                    {assignment.avgScore}
-                    <span className="text-gray-300 font-normal">%</span>
-                  </span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                    Avg. Score
-                  </span>
-                </div>
               </div>
-
-              <div className="relative z-10 mt-2 flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2 text-gray-500 font-medium">
-                  <Clock className="w-4 h-4" />
-                  <span>Due {assignment.dueDate}</span>
-                </div>
-                <div className="flex items-center gap-1 text-black font-bold group-hover:gap-2 transition-all">
-                  <span>View Results</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-
-              <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-gray-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );
