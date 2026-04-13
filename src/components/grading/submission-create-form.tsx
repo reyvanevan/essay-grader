@@ -8,20 +8,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-type SubmissionCreateFormProps = {
-  assignmentId: string;
-  onCreated?: (submission: {
-    id: string;
-    assignment_id: string;
-    student_name: string;
-    student_identifier: string;
-    answer_text: string | null;
-    status: string;
-    created_at: string;
-  }) => void;
+type SubmissionItem = {
+  id: string;
+  assignment_id: string;
+  student_name: string;
+  student_identifier: string;
+  answer_text: string | null;
+  status: string;
+  created_at: string;
 };
 
-export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCreateFormProps) {
+type SubmissionCreateFormProps = {
+  assignmentId: string;
+  onOptimisticCreated?: (submission: SubmissionItem) => void;
+  onConfirmed?: (tempId: string, submission: SubmissionItem) => void;
+  onFailed?: (tempId: string) => void;
+};
+
+export function SubmissionCreateForm({
+  assignmentId,
+  onOptimisticCreated,
+  onConfirmed,
+  onFailed,
+}: SubmissionCreateFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [studentName, setStudentName] = useState("");
@@ -32,6 +41,26 @@ export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCrea
   const handleCreateSubmission = () => {
     setError(null);
 
+    const snapshotName = studentName.trim();
+    const snapshotIdentifier = studentIdentifier.trim();
+    const snapshotAnswer = answerText.trim();
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const createdAt = new Date().toISOString();
+
+    onOptimisticCreated?.({
+      id: tempId,
+      assignment_id: assignmentId,
+      student_name: snapshotName,
+      student_identifier: snapshotIdentifier,
+      answer_text: snapshotAnswer,
+      status: "queued",
+      created_at: createdAt,
+    });
+
+    setStudentName("");
+    setStudentIdentifier("");
+    setAnswerText("");
+
     startTransition(async () => {
       try {
         const response = await fetch("/api/submissions", {
@@ -41,9 +70,9 @@ export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCrea
           },
           body: JSON.stringify({
             assignmentId,
-            studentName,
-            studentIdentifier,
-            answerText,
+            studentName: snapshotName,
+            studentIdentifier: snapshotIdentifier,
+            answerText: snapshotAnswer,
           }),
         });
 
@@ -58,23 +87,23 @@ export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCrea
         };
 
         if (!response.ok) {
+          onFailed?.(tempId);
           setError(body.error || "Failed to create submission.");
           return;
         }
 
-        setStudentName("");
-        setStudentIdentifier("");
-        setAnswerText("");
         if (body.submission) {
-          onCreated?.({
+          onConfirmed?.(tempId, {
             ...body.submission,
-            student_name: studentName,
-            student_identifier: studentIdentifier,
-            answer_text: answerText,
+            student_name: snapshotName,
+            student_identifier: snapshotIdentifier,
+            answer_text: snapshotAnswer,
           });
         }
+
         router.refresh();
       } catch {
+        onFailed?.(tempId);
         setError("Failed to submit answer. Please try again.");
       }
     });
@@ -148,7 +177,7 @@ export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCrea
             {isPending ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin" />
-                Submitting...
+                Queuing...
               </span>
             ) : (
               "Submit and Grade"

@@ -88,12 +88,10 @@ export async function POST(request: Request) {
   }
 
   // Best-effort fallback for low-cost environments (e.g., Vercel Hobby cron limits).
-  // This keeps the queue moving even when high-frequency cron is unavailable.
-  try {
-    await processGradingBatch(1);
-  } catch (error) {
+  // Fire-and-forget so POST response stays fast and UI can show optimistic state immediately.
+  void processGradingBatch(1).catch((error) => {
     console.error("Best-effort inline worker run failed:", error);
-  }
+  });
 
   return NextResponse.json(
     {
