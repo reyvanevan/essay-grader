@@ -36,6 +36,13 @@ const steps = [
   { id: "review", label: "Review" },
 ] as const;
 
+const stepGuidance = [
+  "Set the assignment identity and due date.",
+  "Write clear instructions so students know exactly what to submit.",
+  "Define rubric aspects and make sure total weight equals 100%.",
+  "Review the draft one last time before publishing.",
+] as const;
+
 export default function CreateAssignmentPage() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
@@ -61,8 +68,8 @@ export default function CreateAssignmentPage() {
   const [isPending, startTransition] = useTransition();
 
   const currentStep = steps[stepIndex];
+  const currentGuidance = stepGuidance[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
-  const progressWidth = `${((stepIndex + 1) / steps.length) * 100}%`;
   const totalWeight = rubrics.reduce((sum, rubric) => sum + Number(rubric.weight || 0), 0);
 
   const addRubric = () => {
@@ -147,56 +154,58 @@ export default function CreateAssignmentPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 pb-10 font-sans">
-      <section className="rounded-[22px] border border-black/8 bg-white px-5 py-5 shadow-sm sm:px-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 pb-8 font-sans">
+      <section className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm sm:px-6 sm:py-5">
         <Link
           href="/dashboard/assignments"
-          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-950"
+          className="inline-flex w-fit items-center gap-2 text-xs font-medium text-stone-500 transition-colors hover:text-stone-950"
         >
           <ArrowLeft className="size-4" />
           Back to Assignments
         </Link>
 
-        <div className="mt-4 flex flex-col gap-2">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-            Guided Builder
+        <div className="mt-4 flex flex-col items-center text-center">
+          <p className="text-xs font-medium text-stone-500">
+            Step {stepIndex + 1} of {steps.length}
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">
-            Create New Assignment
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-stone-950 sm:text-[2rem]">
+            {currentStep.label}
           </h1>
-          <p className="text-sm leading-relaxed text-stone-500">
-            Complete one decision at a time so the assignment stays clear and the rubric stays balanced.
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-stone-500">
+            {currentGuidance}
           </p>
         </div>
 
-        <div className="mt-5 flex items-center justify-between">
-          <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
-            Step {stepIndex + 1} of {steps.length}: {currentStep.label}
-          </Badge>
-        </div>
-
-        <div className="mt-3 h-1.5 rounded-full bg-stone-100">
-          <div
-            className="h-full rounded-full bg-stone-900 transition-all duration-300"
-            style={{ width: progressWidth }}
-          />
-        </div>
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-stone-500">
+        <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
           {steps.map((step, index) => (
-            <span key={step.id} className={index === stepIndex ? "font-medium text-stone-950" : ""}>
-              {index + 1}. {step.label}
-            </span>
+            <div key={step.id} className="space-y-1.5">
+              <div
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index < stepIndex
+                    ? "bg-stone-900"
+                    : index === stepIndex
+                      ? "bg-stone-900 shadow-[0_0_0_2px_rgba(28,25,23,0.16)]"
+                      : "bg-stone-200"
+                }`}
+                aria-current={index === stepIndex ? "step" : undefined}
+              />
+              <p
+                className={`text-center text-[11px] ${
+                  index === stepIndex ? "font-semibold text-stone-950" : "text-stone-500"
+                }`}
+              >
+                <span className="sm:hidden">{index + 1}</span>
+                <span className="hidden sm:inline">{step.label}</span>
+              </p>
+            </div>
           ))}
         </div>
 
-        <div className="mt-6 rounded-[18px] border border-stone-200 bg-white px-4 py-5 sm:px-5">
+        <div className="mt-5 rounded-[16px] border border-stone-200 bg-white px-4 py-5 sm:px-5">
           {stepIndex === 0 ? (
             <div className="space-y-5">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-                  Basic Info
-                </p>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                <h2 className="text-xl font-semibold tracking-tight text-stone-950">
                   Name the assignment
                 </h2>
               </div>
@@ -249,10 +258,7 @@ export default function CreateAssignmentPage() {
           {stepIndex === 1 ? (
             <div className="space-y-5">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-                  Instructions
-                </p>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                <h2 className="text-xl font-semibold tracking-tight text-stone-950">
                   Write the student brief
                 </h2>
               </div>
@@ -274,10 +280,7 @@ export default function CreateAssignmentPage() {
             <div className="space-y-5">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-                    Rubric
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                  <h2 className="text-xl font-semibold tracking-tight text-stone-950">
                     Define how the work is graded
                   </h2>
                 </div>
@@ -367,10 +370,7 @@ export default function CreateAssignmentPage() {
           {stepIndex === 3 ? (
             <div className="space-y-5">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-                  Review
-                </p>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                <h2 className="text-xl font-semibold tracking-tight text-stone-950">
                   Confirm before publishing
                 </h2>
               </div>
@@ -417,43 +417,43 @@ export default function CreateAssignmentPage() {
           <div className="mt-6 border-t border-stone-100 pt-5">
             <div className="sticky bottom-0 z-10 -mx-4 border-t border-stone-100 bg-white/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:p-0">
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  stepIndex === 0 ? router.push("/dashboard/assignments") : moveStep("prev")
-                }
-              className="h-10 rounded-lg px-4 text-stone-600 hover:bg-stone-100 hover:text-stone-950"
-            >
-              <ChevronLeft className="size-4" />
-              {stepIndex === 0 ? "Cancel" : "Previous"}
-            </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    stepIndex === 0 ? router.push("/dashboard/assignments") : moveStep("prev")
+                  }
+                  className="h-10 rounded-lg px-4 text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+                >
+                  <ChevronLeft className="size-4" />
+                  {stepIndex === 0 ? "Cancel" : "Previous"}
+                </Button>
 
-            <Button
-              onClick={() => (isLastStep ? handleSubmit() : moveStep("next"))}
-              disabled={isPending || !canAdvance()}
-              className="h-10 rounded-lg bg-stone-950 px-4 text-white hover:bg-stone-800"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Publishing...
-                </>
-              ) : isLastStep ? (
-                "Publish Assignment"
-              ) : (
-                <>
-                  Continue
-                  <ChevronRight className="size-4" />
-                </>
-              )}
-            </Button>
+                <Button
+                  onClick={() => (isLastStep ? handleSubmit() : moveStep("next"))}
+                  disabled={isPending || !canAdvance()}
+                  className="h-10 rounded-lg bg-stone-950 px-4 text-white hover:bg-stone-800"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Publishing...
+                    </>
+                  ) : isLastStep ? (
+                    "Publish Assignment"
+                  ) : (
+                    <>
+                      Continue
+                      <ChevronRight className="size-4" />
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
         </div>
 
-        <details className="mt-4 rounded-[16px] border border-stone-200 bg-stone-50 px-4 py-3 text-sm">
-          <summary className="cursor-pointer font-medium text-stone-700">
+        <details className="mt-3 rounded-[14px] border border-stone-200 bg-stone-50/60 px-4 py-3 text-sm">
+          <summary className="cursor-pointer font-medium text-stone-600">
             Draft Snapshot
           </summary>
           <div className="mt-3 space-y-3">
