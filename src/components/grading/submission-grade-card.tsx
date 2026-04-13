@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { AILoader } from "@/components/ui/ai-loader";
 
 type RubricBreakdownItem = {
   aspect: string;
@@ -66,6 +67,7 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
 
   const rubricBreakdown = grade?.ai_rubric_breakdown || [];
   const relativeTime = formatDistanceToNow(new Date(submission.created_at), { addSuffix: true });
+  const isAIProcessing = !grade && ["pending", "queued", "processing"].includes(submission.status);
 
   const saveOverride = () => {
     setError(null);
@@ -236,9 +238,7 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                 </Tabs>
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-4 py-4 text-sm text-stone-500">
-                Grade is not available yet.
-              </div>
+              <AILoader text={isAIProcessing ? "AI grading in progress" : "Waiting for AI review"} />
             )}
           </div>
 
