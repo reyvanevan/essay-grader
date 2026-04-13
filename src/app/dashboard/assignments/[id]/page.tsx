@@ -13,8 +13,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { SubmissionCreateForm } from "@/components/grading/submission-create-form";
+import { SubmissionGradeCard } from "@/components/grading/submission-grade-card";
 import { AssignmentRealtimeListener } from "@/components/grading/assignment-realtime-listener";
-import { SubmissionInbox } from "@/components/grading/submission-inbox";
 
 type AssignmentRow = {
   id: string;
@@ -190,6 +191,10 @@ export default async function AssignmentDetailPage({
         .returns<GradeRow[]>()
     : { data: [] as GradeRow[] };
 
+  const gradeBySubmission = new Map(
+    (gradesResult.data || []).map((grade) => [grade.submission_id, grade])
+  );
+
   const safeRubrics = rubrics || [];
   const safeSubmissions = submissions || [];
   const totalWeight = safeRubrics.reduce((sum, rubric) => sum + rubric.weight, 0);
@@ -316,21 +321,43 @@ export default async function AssignmentDetailPage({
             </div>
           </section>
 
-          <SubmissionInbox
-            assignmentId={assignmentId}
-            submissions={safeSubmissions}
-            grades={(gradesResult.data || []).map((grade) => ({
-              submission_id: grade.submission_id,
-              ai_holistic_score: grade.ai_holistic_score,
-              ai_holistic_feedback: grade.ai_holistic_feedback,
-              ai_weighted_total: grade.ai_weighted_total,
-              ai_rubric_breakdown: parseRubricBreakdown(grade.ai_rubric_breakdown),
-              final_score: grade.final_score,
-              final_feedback: grade.final_feedback,
-              is_overridden: grade.is_overridden,
-              override_note: grade.override_note,
-            }))}
-          />
+          <SubmissionCreateForm assignmentId={assignmentId} />
+
+          {safeSubmissions.length === 0 ? (
+            <section className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
+              <p className="text-sm font-medium text-stone-700">No submissions yet</p>
+              <p className="mt-2 text-sm text-stone-500">
+                Use the utility panel above when you need a quick manual submission for testing.
+              </p>
+            </section>
+          ) : (
+            <div className="space-y-3">
+              {safeSubmissions.map((submission) => {
+                const grade = gradeBySubmission.get(submission.id);
+
+                return (
+                  <SubmissionGradeCard
+                    key={submission.id}
+                    submission={submission}
+                    grade={
+                      grade
+                        ? {
+                            ai_holistic_score: grade.ai_holistic_score,
+                            ai_holistic_feedback: grade.ai_holistic_feedback,
+                            ai_weighted_total: grade.ai_weighted_total,
+                            ai_rubric_breakdown: parseRubricBreakdown(grade.ai_rubric_breakdown),
+                            final_score: grade.final_score,
+                            final_feedback: grade.final_feedback,
+                            is_overridden: grade.is_overridden,
+                            override_note: grade.override_note,
+                          }
+                        : null
+                    }
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <aside className="hidden xl:block xl:sticky xl:top-24 xl:self-start">

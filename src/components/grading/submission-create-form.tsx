@@ -10,18 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 
 type SubmissionCreateFormProps = {
   assignmentId: string;
-  onCreated?: (submission: {
-    id: string;
-    assignment_id: string;
-    student_name: string;
-    student_identifier: string;
-    answer_text: string | null;
-    status: string;
-    created_at: string;
-  }) => void;
 };
 
-export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCreateFormProps) {
+export function SubmissionCreateForm({ assignmentId }: SubmissionCreateFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [studentName, setStudentName] = useState("");
@@ -47,15 +38,7 @@ export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCrea
           }),
         });
 
-        const body = (await response.json()) as {
-          error?: string;
-          submission?: {
-            id: string;
-            assignment_id: string;
-            status: string;
-            created_at: string;
-          };
-        };
+        const body = (await response.json()) as { error?: string };
 
         if (!response.ok) {
           setError(body.error || "Failed to create submission.");
@@ -65,14 +48,6 @@ export function SubmissionCreateForm({ assignmentId, onCreated }: SubmissionCrea
         setStudentName("");
         setStudentIdentifier("");
         setAnswerText("");
-        if (body.submission) {
-          onCreated?.({
-            ...body.submission,
-            student_name: studentName,
-            student_identifier: studentIdentifier,
-            answer_text: answerText,
-          });
-        }
         router.refresh();
       } catch {
         setError("Failed to submit answer. Please try again.");
