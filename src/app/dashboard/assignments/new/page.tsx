@@ -36,6 +36,14 @@ type RubricDraft = {
   description: string;
 };
 
+function normalizeWeight(value: unknown): number {
+  const numeric = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  if (numeric < 0) return 0;
+  if (numeric > 100) return 100;
+  return Number(numeric.toFixed(2));
+}
+
 const steps = [
   { id: "basic", label: "Basic Info" },
   { id: "instructions", label: "Instructions" },
@@ -85,7 +93,9 @@ export default function CreateAssignmentPage() {
   const currentStep = steps[stepIndex];
   const currentGuidance = stepGuidance[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
-  const totalWeight = rubrics.reduce((sum, rubric) => sum + Number(rubric.weight || 0), 0);
+  const totalWeight = Number(
+    rubrics.reduce((sum, rubric) => sum + normalizeWeight(rubric.weight), 0).toFixed(2)
+  );
 
   const handleModelChange = (value: string | null) => {
     if (!value) return;
@@ -156,7 +166,13 @@ export default function CreateAssignmentPage() {
     value: string | number
   ) => {
     setRubrics((current) =>
-      current.map((rubric) => (rubric.id === id ? { ...rubric, [field]: value } : rubric))
+      current.map((rubric) => {
+        if (rubric.id !== id) return rubric;
+        if (field === "weight") {
+          return { ...rubric, weight: normalizeWeight(value) };
+        }
+        return { ...rubric, [field]: value };
+      })
     );
   };
 
@@ -176,7 +192,7 @@ export default function CreateAssignmentPage() {
           (rubric) =>
             rubric.aspect.trim().length > 0 &&
             rubric.description.trim().length > 0 &&
-            Number(rubric.weight) > 0
+            normalizeWeight(rubric.weight) > 0
         ) &&
         totalWeight === 100
       );
@@ -211,7 +227,7 @@ export default function CreateAssignmentPage() {
 
       const sanitizedRubrics = rubrics.map(({ aspect, weight, description: rubricDescription }) => ({
         aspect,
-        weight,
+        weight: normalizeWeight(weight),
         description: rubricDescription,
       }));
 
@@ -419,9 +435,16 @@ export default function CreateAssignmentPage() {
                         <div className="relative">
                           <Input
                             type="number"
-                            value={rubric.weight || ""}
+                            value={normalizeWeight(rubric.weight)}
+                            min={0}
+                            max={100}
+                            step="0.01"
                             onChange={(event) =>
-                              updateRubric(rubric.id, "weight", Number(event.target.value))
+                              updateRubric(
+                                rubric.id,
+                                "weight",
+                                event.target.value.replace(",", ".")
+                              )
                             }
                             className="h-10 rounded-lg border-stone-200 bg-white pr-7 text-right"
                           />
