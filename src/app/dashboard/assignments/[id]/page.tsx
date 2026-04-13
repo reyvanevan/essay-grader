@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronRight, NotebookPen } from "lucide-react";
+import { ArrowLeft, NotebookPen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubmissionCreateForm } from "@/components/grading/submission-create-form";
 import { SubmissionGradeCard } from "@/components/grading/submission-grade-card";
 import { AssignmentRealtimeListener } from "@/components/grading/assignment-realtime-listener";
@@ -91,61 +92,6 @@ function statusBadgeClass(status: string) {
     : "border-stone-200 bg-stone-100 text-stone-600";
 }
 
-function AssignmentContextPanel({
-  assignment,
-  rubrics,
-  totalWeight,
-  dueDateFormatted,
-}: {
-  assignment: AssignmentRow;
-  rubrics: RubricRow[];
-  totalWeight: number;
-  dueDateFormatted: string;
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-          Instructions
-        </p>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-stone-600">
-          {assignment.description || "No instructions provided."}
-        </p>
-      </div>
-
-      <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-              Rubric
-            </p>
-            <p className="mt-1 text-sm font-medium text-stone-950">{rubrics.length} aspects</p>
-          </div>
-          <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
-            {totalWeight}%
-          </Badge>
-        </div>
-
-        <div className="mt-3 space-y-2">
-          {rubrics.map((rubric) => (
-            <div key={rubric.id} className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-3">
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-stone-950">{rubric.aspect}</p>
-                <span className="text-xs text-stone-500">{rubric.weight}%</span>
-              </div>
-              <p className="mt-1 text-sm leading-relaxed text-stone-600">{rubric.description}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-3 border-t border-stone-100 pt-3 text-sm text-stone-500">
-          Due {dueDateFormatted}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default async function AssignmentDetailPage({
   params,
 }: {
@@ -203,7 +149,12 @@ export default async function AssignmentDetailPage({
     : "No deadline set";
   const status =
     assignment.due_date && new Date(assignment.due_date) < new Date() ? "Closed" : "Active";
-  const gradedCount = safeSubmissions.filter((submission) => submission.status === "graded").length;
+
+  const queuedCount = safeSubmissions.filter((s) => s.status === "queued").length;
+  const processingCount = safeSubmissions.filter((s) => s.status === "processing").length;
+  const failedCount = safeSubmissions.filter((s) => s.status === "failed").length;
+  const gradedCount = safeSubmissions.filter((s) => s.status === "graded").length;
+  const actionNeeded = safeSubmissions.length - gradedCount;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-10 font-sans">
@@ -221,10 +172,7 @@ export default async function AssignmentDetailPage({
         <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Badge
-                variant="outline"
-                className={`text-[11px] ${statusBadgeClass(status)}`}
-              >
+              <Badge variant="outline" className={`text-[11px] ${statusBadgeClass(status)}`}>
                 {status}
               </Badge>
               <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
@@ -235,15 +183,11 @@ export default async function AssignmentDetailPage({
                   Model Locked
                 </Badge>
               ) : null}
-              <span className="text-sm text-stone-500">
-                {assignment.course_code || "General Course"}
-              </span>
+              <span className="text-sm text-stone-500">{assignment.course_code || "General Course"}</span>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">
-              {assignment.title}
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">{assignment.title}</h1>
             <p className="mt-2 text-sm leading-relaxed text-stone-500">
-              Review submissions, inspect AI output, and finalize lecturer decisions.
+              Action-first review workspace: scan queue, open one student, finalize decision.
             </p>
           </div>
 
@@ -258,117 +202,115 @@ export default async function AssignmentDetailPage({
                 }
               >
                 <NotebookPen className="size-4" />
-                View Rubric
+                Assignment Context
               </SheetTrigger>
-              <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[24px]">
-                <SheetHeader className="px-5 pb-0 pt-5">
-                  <SheetTitle>Assignment context</SheetTitle>
-                  <SheetDescription>Instructions and rubric reference.</SheetDescription>
+              <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl">
+                <SheetHeader>
+                  <SheetTitle>Assignment Context</SheetTitle>
+                  <SheetDescription>Instructions and rubric reference on demand.</SheetDescription>
                 </SheetHeader>
-                <div className="px-5 pb-5">
-                  <AssignmentContextPanel
-                    assignment={assignment}
-                    rubrics={safeRubrics}
-                    totalWeight={totalWeight}
-                    dueDateFormatted={dueDateFormatted}
-                  />
-                </div>
+
+                <Tabs defaultValue="instructions" className="mt-5 gap-4">
+                  <TabsList variant="line" className="w-full justify-start">
+                    <TabsTrigger value="instructions">Instructions</TabsTrigger>
+                    <TabsTrigger value="rubric">Rubric</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="instructions" className="space-y-3">
+                    <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
+                      <p className="text-sm leading-relaxed text-stone-700 whitespace-pre-wrap">
+                        {assignment.description || "No instructions provided."}
+                      </p>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="rubric" className="space-y-3">
+                    <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
+                      {safeRubrics.length} aspects · {totalWeight}% total weight
+                    </div>
+                    {safeRubrics.map((rubric) => (
+                      <div key={rubric.id} className="rounded-xl border border-stone-200 bg-white px-4 py-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm font-medium text-stone-950">{rubric.aspect}</p>
+                          <span className="text-xs text-stone-500">{rubric.weight}%</span>
+                        </div>
+                        <p className="mt-1 text-sm leading-relaxed text-stone-600">{rubric.description}</p>
+                      </div>
+                    ))}
+                  </TabsContent>
+                </Tabs>
               </SheetContent>
             </Sheet>
 
-            <a href="#submission-inbox">
-              <Button className="h-10 rounded-lg bg-stone-950 px-4 text-white hover:bg-stone-800">
-                Open Inbox
-                <ChevronRight className="size-4" />
-              </Button>
-            </a>
+            <SubmissionCreateForm assignmentId={assignmentId} />
           </div>
         </div>
 
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Due Date</p>
-            <p className="mt-1 text-sm font-medium text-stone-950">{dueDateFormatted}</p>
+        <div className="mt-5 grid gap-2 sm:grid-cols-4">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-amber-700">Need Action</p>
+            <p className="mt-1 text-sm font-semibold text-amber-800">{actionNeeded}</p>
           </div>
           <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Submissions</p>
-            <p className="mt-1 text-sm font-medium text-stone-950">{safeSubmissions.length}</p>
-          </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Graded</p>
-            <p className="mt-1 text-sm font-medium text-stone-950">
-              {gradedCount}/{safeSubmissions.length}
+            <p className="text-[11px] uppercase tracking-[0.14em] text-stone-400">In Queue</p>
+            <p className="mt-1 text-sm font-semibold text-stone-900">
+              {queuedCount} queued · {processingCount} processing
             </p>
+          </div>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-rose-700">Failed</p>
+            <p className="mt-1 text-sm font-semibold text-rose-800">{failedCount}</p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-stone-400">Due Date</p>
+            <p className="mt-1 text-sm font-semibold text-stone-900">{dueDateFormatted}</p>
           </div>
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div id="submission-inbox" className="space-y-4">
-          <section className="rounded-[20px] border border-black/8 bg-white px-5 py-4 shadow-sm sm:px-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-                  Submission Inbox
-                </p>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
-                  Review queue
-                </h2>
-              </div>
-              <p className="text-sm text-stone-500">
-                {safeSubmissions.length} total · {safeSubmissions.length - gradedCount} waiting
-              </p>
-            </div>
-          </section>
-
-          <SubmissionCreateForm assignmentId={assignmentId} />
-
-          {safeSubmissions.length === 0 ? (
-            <section className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
-              <p className="text-sm font-medium text-stone-700">No submissions yet</p>
-              <p className="mt-2 text-sm text-stone-500">
-                Use the utility panel above when you need a quick manual submission for testing.
-              </p>
-            </section>
-          ) : (
-            <div className="space-y-3">
-              {safeSubmissions.map((submission) => {
-                const grade = gradeBySubmission.get(submission.id);
-
-                return (
-                  <SubmissionGradeCard
-                    key={submission.id}
-                    submission={submission}
-                    grade={
-                      grade
-                        ? {
-                            ai_holistic_score: grade.ai_holistic_score,
-                            ai_holistic_feedback: grade.ai_holistic_feedback,
-                            ai_weighted_total: grade.ai_weighted_total,
-                            ai_rubric_breakdown: parseRubricBreakdown(grade.ai_rubric_breakdown),
-                            final_score: grade.final_score,
-                            final_feedback: grade.final_feedback,
-                            is_overridden: grade.is_overridden,
-                            override_note: grade.override_note,
-                          }
-                        : null
-                    }
-                  />
-                );
-              })}
-            </div>
-          )}
+      <section id="submission-inbox" className="space-y-3">
+        <div className="hidden rounded-[18px] border border-black/8 bg-white px-6 py-4 shadow-sm sm:block">
+          <div className="grid grid-cols-[1.2fr_auto_auto] gap-3 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-400">
+            <span>Submission</span>
+            <span className="text-right">Status</span>
+            <span className="text-right">Final</span>
+          </div>
         </div>
 
-        <aside className="hidden xl:block xl:sticky xl:top-24 xl:self-start">
-          <AssignmentContextPanel
-            assignment={assignment}
-            rubrics={safeRubrics}
-            totalWeight={totalWeight}
-            dueDateFormatted={dueDateFormatted}
-          />
-        </aside>
-      </div>
+        {safeSubmissions.length === 0 ? (
+          <section className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
+            <p className="text-sm font-medium text-stone-700">No submissions yet</p>
+            <p className="mt-2 text-sm text-stone-500">Add a manual submission to start grading.</p>
+          </section>
+        ) : (
+          <div className="space-y-2">
+            {safeSubmissions.map((submission) => {
+              const grade = gradeBySubmission.get(submission.id);
+
+              return (
+                <SubmissionGradeCard
+                  key={submission.id}
+                  submission={submission}
+                  grade={
+                    grade
+                      ? {
+                          ai_holistic_score: grade.ai_holistic_score,
+                          ai_holistic_feedback: grade.ai_holistic_feedback,
+                          ai_weighted_total: grade.ai_weighted_total,
+                          ai_rubric_breakdown: parseRubricBreakdown(grade.ai_rubric_breakdown),
+                          final_score: grade.final_score,
+                          final_feedback: grade.final_feedback,
+                          is_overridden: grade.is_overridden,
+                          override_note: grade.override_note,
+                        }
+                      : null
+                  }
+                />
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
