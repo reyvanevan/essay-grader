@@ -117,6 +117,7 @@ export default function CreateAssignmentPage() {
       if (direction === "prev") return Math.max(0, current - 1);
       return Math.min(steps.length - 1, current + 1);
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSubmit = () => {
@@ -263,7 +264,7 @@ export default function CreateAssignmentPage() {
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Write the problem statement or instructions here..."
-                  className="min-h-[220px] rounded-xl border-stone-200 bg-stone-50"
+                  className="min-h-[160px] rounded-xl border-stone-200 bg-stone-50 sm:min-h-[220px]"
                 />
               </div>
             </div>
@@ -413,12 +414,14 @@ export default function CreateAssignmentPage() {
             </div>
           ) : null}
 
-          <div className="mt-6 flex flex-col gap-3 border-t border-stone-100 pt-5 sm:flex-row sm:justify-between">
-            <Button
-              variant="ghost"
-              onClick={() =>
-                stepIndex === 0 ? router.push("/dashboard/assignments") : moveStep("prev")
-              }
+          <div className="mt-6 border-t border-stone-100 pt-5">
+            <div className="sticky bottom-0 z-10 -mx-4 border-t border-stone-100 bg-white/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:p-0">
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  stepIndex === 0 ? router.push("/dashboard/assignments") : moveStep("prev")
+                }
               className="h-10 rounded-lg px-4 text-stone-600 hover:bg-stone-100 hover:text-stone-950"
             >
               <ChevronLeft className="size-4" />
@@ -444,6 +447,8 @@ export default function CreateAssignmentPage() {
                 </>
               )}
             </Button>
+              </div>
+            </div>
           </div>
         </div>
 
