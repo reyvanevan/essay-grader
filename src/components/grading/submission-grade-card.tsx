@@ -176,31 +176,21 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                 {fullAnswer}
               </p>
 
-              {shouldAllowExpand && !isAnswerExpanded ? (
+              {shouldAllowExpand ? (
                 <>
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 via-stone-50/95 to-transparent" />
                   <div className="absolute inset-x-0 bottom-3 flex justify-center">
                     <button
                       type="button"
-                      onClick={() => setIsAnswerExpanded(true)}
+                      onClick={() => setIsAnswerExpanded((current) => !current)}
                       className="rounded-full border border-stone-200 bg-white/95 px-3 py-1 text-xs font-medium text-stone-700 shadow-sm transition-colors hover:bg-white hover:text-stone-950"
                     >
-                      Show more answer
+                      {isAnswerExpanded ? "Show less answer" : "Show more answer"}
                     </button>
                   </div>
                 </>
               ) : null}
             </div>
-
-            {shouldAllowExpand && isAnswerExpanded ? (
-              <button
-                type="button"
-                onClick={() => setIsAnswerExpanded(false)}
-                className="mt-3 text-sm font-medium text-stone-700 underline decoration-stone-300 underline-offset-4 transition-colors hover:text-stone-950"
-              >
-                Show less answer
-              </button>
-            ) : null}
           </div>
 
           {grade ? (
