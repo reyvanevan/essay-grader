@@ -65,6 +65,7 @@ function truncateAnswer(answer: string | null, maxLength = 90) {
 export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isAnswerExpanded, setIsAnswerExpanded] = useState(false);
   const [overrideScore, setOverrideScore] = useState(
     grade?.final_score?.toString() || grade?.ai_weighted_total?.toString() || ""
   );
@@ -74,6 +75,9 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
 
   const rubricBreakdown = grade?.ai_rubric_breakdown || [];
   const relativeTime = formatDistanceToNow(new Date(submission.created_at), { addSuffix: true });
+  const fullAnswer = submission.answer_text || "No answer provided.";
+  const shouldAllowExpand = fullAnswer.length > 1200;
+  const answerPreview = shouldAllowExpand ? `${fullAnswer.slice(0, 1200).trimEnd()}...` : fullAnswer;
 
   const saveOverride = () => {
     setError(null);
@@ -149,25 +153,35 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
         </SheetTrigger>
       </div>
 
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl">
-        <SheetHeader>
+      <SheetContent side="right" className="w-full overflow-hidden sm:max-w-4xl">
+        <SheetHeader className="px-5 pb-3 pt-5 sm:px-8 sm:pt-7">
           <SheetTitle>{submission.student_name}</SheetTitle>
           <SheetDescription>
             {submission.student_identifier} · {submission.status}
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-5 space-y-4 pb-5">
-          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-5 pb-6 sm:px-8 sm:pb-8">
+          <div className="mx-auto max-w-3xl space-y-5">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-5 py-5">
             <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Student Answer</p>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-stone-700">
-              {submission.answer_text || "No answer provided."}
+              {isAnswerExpanded ? fullAnswer : answerPreview}
             </p>
+            {shouldAllowExpand ? (
+              <button
+                type="button"
+                onClick={() => setIsAnswerExpanded((current) => !current)}
+                className="mt-3 text-sm font-medium text-stone-700 underline decoration-stone-300 underline-offset-4 transition-colors hover:text-stone-950"
+              >
+                {isAnswerExpanded ? "Show less answer" : "Show more answer"}
+              </button>
+            ) : null}
           </div>
 
           {grade ? (
             <div className="space-y-4">
-              <div className="rounded-xl border border-stone-200 bg-white px-4 py-4">
+              <div className="rounded-xl border border-stone-200 bg-white px-5 py-5">
                 <Tabs defaultValue="holistic" className="gap-4">
                   <TabsList variant="line" className="w-full justify-start">
                     <TabsTrigger value="holistic">Holistic</TabsTrigger>
@@ -226,7 +240,7 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                 </Tabs>
               </div>
 
-              <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
+              <div className="rounded-xl border border-stone-200 bg-stone-50 px-5 py-5">
                 <div className="mb-4">
                   <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Lecturer Override</p>
                   <p className="mt-1 text-sm text-stone-500">Adjust the published result if needed.</p>
@@ -292,6 +306,7 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
               Grade is not available yet.
             </div>
           )}
+          </div>
         </div>
       </SheetContent>
     </Sheet>
