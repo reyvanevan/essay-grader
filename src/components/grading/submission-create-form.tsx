@@ -96,14 +96,14 @@ export function SubmissionCreateForm({ assignmentId }: SubmissionCreateFormProps
         side="right"
         className="w-full overflow-y-auto data-[side=right]:md:w-[46rem] data-[side=right]:lg:w-[52rem] data-[side=right]:md:max-w-none"
       >
-        <SheetHeader>
+        <SheetHeader className="px-5 pb-3 pt-5 sm:px-8 sm:pt-7">
           <SheetTitle>Add Manual Submission</SheetTitle>
           <SheetDescription>
             This is for lecturer testing or manual entry before AI grading.
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mx-auto mt-5 max-w-3xl space-y-4 px-1 pb-4">
+        <div className="mt-5 space-y-4 px-5 pb-6 sm:px-8 sm:pb-8">
           <div className="space-y-2">
             <Label htmlFor="studentName">Student Name</Label>
             <Input
