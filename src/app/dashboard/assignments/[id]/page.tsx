@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubmissionCreateForm } from "@/components/grading/submission-create-form";
-import { SubmissionGradeCard } from "@/components/grading/submission-grade-card";
+import { SubmissionReviewList } from "@/components/grading/submission-review-list";
 import { AssignmentRealtimeListener } from "@/components/grading/assignment-realtime-listener";
 
 type AssignmentRow = {
@@ -136,10 +136,6 @@ export default async function AssignmentDetailPage({
         .in("submission_id", submissionIds)
         .returns<GradeRow[]>()
     : { data: [] as GradeRow[] };
-
-  const gradeBySubmission = new Map(
-    (gradesResult.data || []).map((grade) => [grade.submission_id, grade])
-  );
 
   const safeRubrics = rubrics || [];
   const safeSubmissions = submissions || [];
@@ -268,49 +264,27 @@ export default async function AssignmentDetailPage({
         </div>
       </section>
 
-      <section id="submission-inbox" className="space-y-3">
-        <div className="hidden rounded-[18px] border border-black/8 bg-white px-6 py-4 shadow-sm sm:block">
-          <div className="grid grid-cols-[1.2fr_auto_auto] gap-3 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-400">
-            <span>Submission</span>
-            <span className="text-right">Status</span>
-            <span className="text-right">Final</span>
-          </div>
-        </div>
-
-        {safeSubmissions.length === 0 ? (
-          <section className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
-            <p className="text-sm font-medium text-stone-700">No submissions yet</p>
-            <p className="mt-2 text-sm text-stone-500">Add a manual submission to start grading.</p>
-          </section>
-        ) : (
-          <div className="space-y-2">
-            {safeSubmissions.map((submission) => {
-              const grade = gradeBySubmission.get(submission.id);
-
-              return (
-                <SubmissionGradeCard
-                  key={submission.id}
-                  submission={submission}
-                  grade={
-                    grade
-                      ? {
-                          ai_holistic_score: grade.ai_holistic_score,
-                          ai_holistic_feedback: grade.ai_holistic_feedback,
-                          ai_weighted_total: grade.ai_weighted_total,
-                          ai_rubric_breakdown: parseRubricBreakdown(grade.ai_rubric_breakdown),
-                          final_score: grade.final_score,
-                          final_feedback: grade.final_feedback,
-                          is_overridden: grade.is_overridden,
-                          override_note: grade.override_note,
-                        }
-                      : null
-                  }
-                />
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {safeSubmissions.length === 0 ? (
+        <section id="submission-inbox" className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
+          <p className="text-sm font-medium text-stone-700">No submissions yet</p>
+          <p className="mt-2 text-sm text-stone-500">Add a manual submission to start grading.</p>
+        </section>
+      ) : (
+        <SubmissionReviewList
+          submissions={safeSubmissions}
+          grades={(gradesResult.data || []).map((grade) => ({
+            submission_id: grade.submission_id,
+            ai_holistic_score: grade.ai_holistic_score,
+            ai_holistic_feedback: grade.ai_holistic_feedback,
+            ai_weighted_total: grade.ai_weighted_total,
+            ai_rubric_breakdown: parseRubricBreakdown(grade.ai_rubric_breakdown),
+            final_score: grade.final_score,
+            final_feedback: grade.final_feedback,
+            is_overridden: grade.is_overridden,
+            override_note: grade.override_note,
+          }))}
+        />
+      )}
     </div>
   );
 }
