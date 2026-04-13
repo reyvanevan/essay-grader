@@ -7,22 +7,19 @@ import {
   CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  ClipboardList,
-  FilePenLine,
-  ListChecks,
   Loader2,
   Plus,
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { createAssignmentAction } from "./actions";
 
 type RubricDraft = {
@@ -33,10 +30,10 @@ type RubricDraft = {
 };
 
 const steps = [
-  { id: "basic", label: "Basic Info", icon: ClipboardList },
-  { id: "instructions", label: "Instructions", icon: FilePenLine },
-  { id: "rubric", label: "Rubric", icon: ListChecks },
-  { id: "review", label: "Review", icon: ChevronRight },
+  { id: "basic", label: "Basic Info" },
+  { id: "instructions", label: "Instructions" },
+  { id: "rubric", label: "Rubric" },
+  { id: "review", label: "Review" },
 ] as const;
 
 export default function CreateAssignmentPage() {
@@ -63,9 +60,10 @@ export default function CreateAssignmentPage() {
   ]);
   const [isPending, startTransition] = useTransition();
 
-  const totalWeight = rubrics.reduce((sum, rubric) => sum + Number(rubric.weight || 0), 0);
   const currentStep = steps[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
+  const progressWidth = `${((stepIndex + 1) / steps.length) * 100}%`;
+  const totalWeight = rubrics.reduce((sum, rubric) => sum + Number(rubric.weight || 0), 0);
 
   const addRubric = () => {
     setRubrics((current) => [
@@ -146,92 +144,65 @@ export default function CreateAssignmentPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-12 font-sans">
-      <div className="relative overflow-hidden rounded-[36px] border border-black/8 bg-[linear-gradient(135deg,#f4efe6_0%,#fffdf9_42%,#f7f1ea_100%)] p-5 shadow-[0_24px_80px_rgba(10,10,10,0.08)] sm:p-8">
-        <div className="absolute -right-14 -top-16 h-52 w-52 rounded-full bg-[radial-gradient(circle,_rgba(188,160,120,0.18),_transparent_70%)]" />
-        <div className="absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-[radial-gradient(circle,_rgba(86,102,94,0.10),_transparent_72%)]" />
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 pb-10 font-sans">
+      <section className="rounded-[22px] border border-black/8 bg-white px-5 py-5 shadow-sm sm:px-6">
+        <Link
+          href="/dashboard/assignments"
+          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-950"
+        >
+          <ArrowLeft className="size-4" />
+          Back to Assignments
+        </Link>
 
-        <div className="relative z-10 flex flex-col gap-5">
-          <Link
-            href="/dashboard/assignments"
-            className="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-950"
-          >
-            <ArrowLeft className="size-4" />
-            Back to Assignments
-          </Link>
-
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-stone-200 bg-white/80 text-stone-700">
-                  Guided Builder
-                </Badge>
-                <Badge variant="outline" className="border-stone-200 bg-white/80 text-stone-700">
-                  Mobile-first flow
-                </Badge>
-              </div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                Assignment Setup
-              </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-                Create New Assignment
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600 sm:text-base">
-                Build the assignment in focused steps so instructions and rubrics feel intentional instead of overwhelming.
-              </p>
-            </div>
-
-            <div className="rounded-[24px] border border-white/70 bg-white/80 px-4 py-3 backdrop-blur-sm">
-              <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">Current step</p>
-              <p className="mt-1 text-lg font-semibold tracking-tight text-stone-950">
-                {stepIndex + 1}. {currentStep.label}
-              </p>
-            </div>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
+              Guided Builder
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">
+              Create New Assignment
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-stone-500">
+              Complete one decision at a time so the assignment stays clear and the rubric stays balanced.
+            </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {steps.map((step, index) => {
-              const StepIcon = step.icon;
-              const isActive = index === stepIndex;
-              const isDone = index < stepIndex;
+          <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+            Step {stepIndex + 1} of {steps.length}
+          </Badge>
+        </div>
 
-              return (
-                <div
-                  key={step.id}
-                  className={`rounded-[24px] border p-4 backdrop-blur-sm ${
-                    isActive
-                      ? "border-stone-950 bg-stone-950 text-white"
-                      : isDone
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-white/70 bg-white/80 text-stone-500"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
-                    <StepIcon className="size-3.5" />
-                    Step {index + 1}
-                  </div>
-                  <p className="mt-3 text-base font-semibold tracking-tight">{step.label}</p>
-                </div>
-              );
-            })}
+        <div className="mt-5">
+          <div className="h-1.5 rounded-full bg-stone-100">
+            <div
+              className="h-full rounded-full bg-stone-900 transition-all duration-300"
+              style={{ width: progressWidth }}
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-stone-500">
+            {steps.map((step, index) => (
+              <span
+                key={step.id}
+                className={index === stepIndex ? "font-medium text-stone-950" : ""}
+              >
+                {index + 1}. {step.label}
+              </span>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.3fr)_340px]">
-        <div className="rounded-[32px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)] sm:p-6">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <section className="rounded-[20px] border border-black/8 bg-white px-5 py-5 shadow-sm sm:px-6">
           {stepIndex === 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
                   Basic Info
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
-                  Name the assignment and its context
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                  Name the assignment
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-stone-500">
-                  Start with the essentials so the rest of the builder has a clear frame.
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -241,7 +212,7 @@ export default function CreateAssignmentPage() {
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder="e.g. Midterm: Big-O Notation"
-                  className="h-12 rounded-2xl bg-stone-50"
+                  className="h-10 rounded-lg border-stone-200 bg-stone-50"
                 />
               </div>
 
@@ -253,7 +224,7 @@ export default function CreateAssignmentPage() {
                     value={courseCode}
                     onChange={(event) => setCourseCode(event.target.value)}
                     placeholder="IF101"
-                    className="h-12 rounded-2xl bg-stone-50"
+                    className="h-10 rounded-lg border-stone-200 bg-stone-50"
                   />
                 </div>
                 <div className="space-y-2">
@@ -263,7 +234,7 @@ export default function CreateAssignmentPage() {
                       render={
                         <Button
                           variant="outline"
-                          className="h-12 w-full justify-start rounded-2xl border-stone-200 bg-stone-50 text-left font-normal hover:bg-stone-100"
+                          className="h-10 w-full justify-start rounded-lg border-stone-200 bg-stone-50 text-left font-normal hover:bg-stone-100"
                         />
                       }
                     >
@@ -280,17 +251,14 @@ export default function CreateAssignmentPage() {
           ) : null}
 
           {stepIndex === 1 ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
                   Instructions
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
-                  Frame how students should respond
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                  Write the student brief
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-stone-500">
-                  Write the assignment brief exactly as you want the student context to appear in the review workspace.
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -300,25 +268,22 @@ export default function CreateAssignmentPage() {
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Write the problem statement or instructions here..."
-                  className="min-h-[260px] rounded-[24px] bg-stone-50"
+                  className="min-h-[220px] rounded-xl border-stone-200 bg-stone-50"
                 />
               </div>
             </div>
           ) : null}
 
           {stepIndex === 2 ? (
-            <div className="space-y-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
                     Rubric
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
-                    Shape the grading logic
+                  <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Define how the work is graded
                   </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-stone-500">
-                    Keep each aspect specific so the AI review stays grounded and explainable.
-                  </p>
                 </div>
                 <Badge
                   variant="outline"
@@ -328,32 +293,27 @@ export default function CreateAssignmentPage() {
                       : "border-amber-200 bg-amber-50 text-amber-700"
                   }
                 >
-                  Total Weight: {totalWeight}%
+                  {totalWeight}% total
                 </Badge>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {rubrics.map((rubric, index) => (
-                  <div
-                    key={rubric.id}
-                    className="rounded-[24px] border border-stone-200 bg-stone-50 p-4 sm:p-5"
-                  >
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold tracking-tight text-stone-950">
-                        Aspect {index + 1}
-                      </p>
+                  <div key={rubric.id} className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium text-stone-950">Aspect {index + 1}</p>
                       {rubrics.length > 1 ? (
                         <button
                           type="button"
                           onClick={() => removeRubric(rubric.id)}
-                          className="inline-flex size-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-500 transition-colors hover:text-rose-600"
+                          className="inline-flex size-8 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 transition-colors hover:text-rose-600"
                         >
                           <Trash2 className="size-4" />
                         </button>
                       ) : null}
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
+                    <div className="grid gap-3 sm:grid-cols-[1fr_108px]">
                       <div className="space-y-2">
                         <Label>Grading Aspect</Label>
                         <Input
@@ -362,7 +322,7 @@ export default function CreateAssignmentPage() {
                             updateRubric(rubric.id, "aspect", event.target.value)
                           }
                           placeholder="e.g. Code Efficiency"
-                          className="h-11 rounded-2xl bg-white"
+                          className="h-10 rounded-lg border-stone-200 bg-white"
                         />
                       </div>
                       <div className="space-y-2">
@@ -374,24 +334,24 @@ export default function CreateAssignmentPage() {
                             onChange={(event) =>
                               updateRubric(rubric.id, "weight", Number(event.target.value))
                             }
-                            className="h-11 rounded-2xl bg-white pr-8 text-right"
+                            className="h-10 rounded-lg border-stone-200 bg-white pr-7 text-right"
                           />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-stone-400">
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-stone-400">
                             %
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-4 space-y-2">
-                      <Label>Definition (AI Instructions)</Label>
+                    <div className="mt-3 space-y-2">
+                      <Label>Definition</Label>
                       <Textarea
                         value={rubric.description}
                         onChange={(event) =>
                           updateRubric(rubric.id, "description", event.target.value)
                         }
                         placeholder="Tell the AI how to evaluate this aspect..."
-                        className="min-h-28 rounded-[24px] bg-white"
+                        className="min-h-24 rounded-xl border-stone-200 bg-white"
                       />
                     </div>
                   </div>
@@ -402,7 +362,7 @@ export default function CreateAssignmentPage() {
                 type="button"
                 variant="outline"
                 onClick={addRubric}
-                className="h-12 rounded-2xl border-dashed border-stone-300 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+                className="h-10 rounded-lg border-dashed border-stone-300 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-950"
               >
                 <Plus className="size-4" />
                 Add Rubric Aspect
@@ -411,20 +371,17 @@ export default function CreateAssignmentPage() {
           ) : null}
 
           {stepIndex === 3 ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
                   Review
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
-                  Check the assignment before publishing
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                  Confirm before publishing
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-stone-500">
-                  This is the final pass to confirm structure, instruction tone, and grading balance.
-                </p>
               </div>
 
-              <div className="rounded-[24px] border border-stone-200 bg-stone-50 p-5">
+              <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className="border-stone-200 bg-white text-stone-700">
                     {courseCode || "General Course"}
@@ -432,39 +389,30 @@ export default function CreateAssignmentPage() {
                   <Badge variant="outline" className="border-stone-200 bg-white text-stone-700">
                     {date ? format(date, "dd MMM yyyy") : "No deadline"}
                   </Badge>
-                  <Badge
-                    variant="outline"
-                    className={
-                      totalWeight === 100
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-amber-200 bg-amber-50 text-amber-700"
-                    }
-                  >
-                    {totalWeight}% total
-                  </Badge>
                 </div>
-
-                <h3 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950">
+                <h3 className="mt-3 text-lg font-semibold text-stone-950">
                   {title || "Untitled Assignment"}
                 </h3>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-stone-600">
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-stone-600">
                   {description || "No student instructions written yet."}
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {rubrics.map((rubric) => (
-                  <div key={rubric.id} className="rounded-[24px] border border-stone-200 bg-white p-4">
+                  <div key={rubric.id} className="rounded-xl border border-stone-200 bg-white px-4 py-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-stone-950">{rubric.aspect || "Untitled Aspect"}</p>
-                        <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                        <p className="text-sm font-medium text-stone-950">
+                          {rubric.aspect || "Untitled Aspect"}
+                        </p>
+                        <p className="mt-1 text-sm text-stone-600">
                           {rubric.description || "No rubric definition provided."}
                         </p>
                       </div>
-                      <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+                      <span className="text-sm font-medium text-stone-500">
                         {rubric.weight || 0}%
-                      </Badge>
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -474,11 +422,13 @@ export default function CreateAssignmentPage() {
             </div>
           ) : null}
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-stone-100 pt-6 sm:flex-row sm:justify-between">
+          <div className="mt-6 flex flex-col gap-3 border-t border-stone-100 pt-5 sm:flex-row sm:justify-between">
             <Button
               variant="ghost"
-              onClick={() => (stepIndex === 0 ? router.push("/dashboard/assignments") : moveStep("prev"))}
-              className="h-11 rounded-xl px-4 text-stone-600 hover:bg-stone-100 hover:text-stone-950"
+              onClick={() =>
+                stepIndex === 0 ? router.push("/dashboard/assignments") : moveStep("prev")
+              }
+              className="h-10 rounded-lg px-4 text-stone-600 hover:bg-stone-100 hover:text-stone-950"
             >
               <ChevronLeft className="size-4" />
               {stepIndex === 0 ? "Cancel" : "Previous"}
@@ -487,7 +437,7 @@ export default function CreateAssignmentPage() {
             <Button
               onClick={() => (isLastStep ? handleSubmit() : moveStep("next"))}
               disabled={isPending || !canAdvance()}
-              className="h-11 rounded-xl bg-stone-950 px-5 text-white hover:bg-stone-800"
+              className="h-10 rounded-lg bg-stone-950 px-4 text-white hover:bg-stone-800"
             >
               {isPending ? (
                 <>
@@ -495,7 +445,7 @@ export default function CreateAssignmentPage() {
                   Publishing...
                 </>
               ) : isLastStep ? (
-                "Deploy AI Grader & Assignment"
+                "Publish Assignment"
               ) : (
                 <>
                   Continue
@@ -504,44 +454,40 @@ export default function CreateAssignmentPage() {
               )}
             </Button>
           </div>
-        </div>
+        </section>
 
-        <aside className="space-y-5 xl:sticky xl:top-24">
-          <div className="rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-              Builder Guidance
+        <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
+          <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
+              Current Step
             </p>
-            <h3 className="mt-2 text-xl font-semibold tracking-tight text-stone-950">
-              Keep each step focused
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-stone-500">
-              This builder intentionally limits attention to one decision layer at a time so the rubric stays readable and balanced.
+            <p className="mt-1 text-sm font-medium text-stone-950">{currentStep.label}</p>
+            <p className="mt-2 text-sm text-stone-500">
+              Keep this step concise before moving forward.
             </p>
           </div>
 
-          <div className="rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+          <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
               Draft Snapshot
             </p>
-            <div className="mt-4 space-y-4">
-              <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">Title</p>
-                <p className="mt-2 text-sm font-medium text-stone-800">
-                  {title || "Waiting for title"}
-                </p>
+            <div className="mt-3 space-y-3 text-sm">
+              <div>
+                <p className="text-stone-400">Title</p>
+                <p className="mt-1 font-medium text-stone-900">{title || "Waiting for title"}</p>
               </div>
-              <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">Instructions</p>
-                <p className="mt-2 text-sm text-stone-600">
+              <div>
+                <p className="text-stone-400">Instructions</p>
+                <p className="mt-1 text-stone-600">
                   {description
-                    ? `${description.slice(0, 120)}${description.length > 120 ? "..." : ""}`
+                    ? `${description.slice(0, 96)}${description.length > 96 ? "..." : ""}`
                     : "No instructions drafted yet"}
                 </p>
               </div>
-              <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">Rubric Balance</p>
-                <p className="mt-2 text-sm font-medium text-stone-800">
-                  {rubrics.length} aspects · {totalWeight}% total
+              <div>
+                <p className="text-stone-400">Rubrics</p>
+                <p className="mt-1 font-medium text-stone-900">
+                  {rubrics.length} aspects · {totalWeight}%
                 </p>
               </div>
             </div>

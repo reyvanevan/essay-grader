@@ -2,16 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  BrainCircuit,
-  CalendarClock,
-  ChevronRight,
-  FileStack,
-  NotebookPen,
-  ScrollText,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, ChevronRight, NotebookPen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,6 +82,12 @@ function parseRubricBreakdown(raw: unknown): RubricBreakdownItem[] {
     .filter((item): item is RubricBreakdownItem => Boolean(item));
 }
 
+function statusBadgeClass(status: string) {
+  return status === "Active"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    : "border-stone-200 bg-stone-100 text-stone-600";
+}
+
 function AssignmentContextPanel({
   assignment,
   rubrics,
@@ -103,56 +100,43 @@ function AssignmentContextPanel({
   dueDateFormatted: string;
 }) {
   return (
-    <div className="space-y-5">
-      <div className="rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)]">
-        <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-          <ScrollText className="size-3.5" />
-          Assignment Instructions
-        </div>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-600">
+    <div className="space-y-3">
+      <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
+          Instructions
+        </p>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-stone-600">
           {assignment.description || "No instructions provided."}
         </p>
       </div>
 
-      <div className="rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)]">
-        <div className="mb-4 flex items-start justify-between gap-3">
+      <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-              <BrainCircuit className="size-3.5" />
-              Grading Context
-            </div>
-            <h3 className="text-lg font-semibold tracking-tight text-stone-950">
-              Rubric reference panel
-            </h3>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
+              Rubric
+            </p>
+            <p className="mt-1 text-sm font-medium text-stone-950">{rubrics.length} aspects</p>
           </div>
-          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
-            {totalWeight}% total
+          <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+            {totalWeight}%
           </Badge>
         </div>
 
-        <div className="mb-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-stone-50 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">Due Date</p>
-            <p className="mt-2 text-sm font-medium text-stone-800">{dueDateFormatted}</p>
-          </div>
-          <div className="rounded-2xl bg-stone-50 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">Rubric Count</p>
-            <p className="mt-2 text-sm font-medium text-stone-800">{rubrics.length} aspects</p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
+        <div className="mt-3 space-y-2">
           {rubrics.map((rubric) => (
-            <div key={rubric.id} className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+            <div key={rubric.id} className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-3">
               <div className="flex items-start justify-between gap-3">
-                <p className="font-semibold text-stone-950">{rubric.aspect}</p>
-                <Badge variant="outline" className="border-stone-200 bg-white text-stone-700">
-                  {rubric.weight}%
-                </Badge>
+                <p className="text-sm font-medium text-stone-950">{rubric.aspect}</p>
+                <span className="text-xs text-stone-500">{rubric.weight}%</span>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-stone-600">{rubric.description}</p>
+              <p className="mt-1 text-sm leading-relaxed text-stone-600">{rubric.description}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-3 border-t border-stone-100 pt-3 text-sm text-stone-500">
+          Due {dueDateFormatted}
         </div>
       </div>
     </div>
@@ -219,160 +203,124 @@ export default async function AssignmentDetailPage({
   const gradedCount = safeSubmissions.filter((submission) => submission.status === "graded").length;
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-12 font-sans">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-10 font-sans">
       <AssignmentRealtimeListener assignmentId={assignmentId} />
 
-      <div className="relative overflow-hidden rounded-[36px] border border-black/8 bg-[linear-gradient(135deg,#f4efe6_0%,#fffdf9_40%,#f7f3ee_100%)] p-5 shadow-[0_24px_80px_rgba(10,10,10,0.08)] sm:p-8">
-        <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-[radial-gradient(circle,_rgba(188,160,120,0.22),_transparent_70%)]" />
-        <div className="absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-[radial-gradient(circle,_rgba(76,92,79,0.08),_transparent_72%)]" />
+      <section className="rounded-[22px] border border-black/8 bg-white px-5 py-5 shadow-sm sm:px-6">
+        <Link
+          href="/dashboard/assignments"
+          className="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-950"
+        >
+          <ArrowLeft className="size-4" />
+          Back to Assignments
+        </Link>
 
-        <div className="relative z-10 flex flex-col gap-5">
-          <Link
-            href="/dashboard/assignments"
-            className="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-950"
-          >
-            <ArrowLeft className="size-4" />
-            Back to Assignments
-          </Link>
-
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div className="max-w-3xl space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={
-                    status === "Active"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : "border-stone-200 bg-stone-100 text-stone-600"
-                  }
-                >
-                  {status}
-                </Badge>
-                <Badge variant="outline" className="border-stone-200 bg-white/70 text-stone-700">
-                  {assignment.course_code || "General Course"}
-                </Badge>
-                <Badge variant="outline" className="border-stone-200 bg-white/70 text-stone-700">
-                  Review-first workspace
-                </Badge>
-              </div>
-
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                  Editorial Control Room
-                </p>
-                <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-                  {assignment.title}
-                </h1>
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-stone-600 sm:text-base">
-                  Review incoming submissions, inspect AI reasoning, and finalize lecturer decisions without getting trapped in a long scrolling page.
-                </p>
-              </div>
+        <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <Badge
+                variant="outline"
+                className={`text-[11px] ${statusBadgeClass(status)}`}
+              >
+                {status}
+              </Badge>
+              <span className="text-sm text-stone-500">
+                {assignment.course_code || "General Course"}
+              </span>
             </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Sheet>
-                <SheetTrigger
-                  render={
-                    <Button variant="outline" className="h-11 rounded-xl border-stone-300 bg-white/80 px-4" />
-                  }
-                >
-                  <NotebookPen className="size-4" />
-                  View Rubric
-                </SheetTrigger>
-                <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[28px]">
-                  <SheetHeader className="px-5 pb-0 pt-5">
-                    <SheetTitle>Assignment context</SheetTitle>
-                    <SheetDescription>
-                      Rubric and instructions stay close, but no longer crowd the mobile review flow.
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="px-5 pb-5">
-                    <AssignmentContextPanel
-                      assignment={assignment}
-                      rubrics={safeRubrics}
-                      totalWeight={totalWeight}
-                      dueDateFormatted={dueDateFormatted}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              <a href="#submission-inbox">
-                <Button className="h-11 rounded-xl bg-stone-950 px-4 text-white hover:bg-stone-800">
-                  Open Inbox
-                  <ChevronRight className="size-4" />
-                </Button>
-              </a>
-            </div>
+            <h1 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">
+              {assignment.title}
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-stone-500">
+              Review submissions, inspect AI output, and finalize lecturer decisions.
+            </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                <CalendarClock className="size-3.5" />
-                Due Date
-              </div>
-              <p className="mt-3 text-xl font-semibold tracking-tight text-stone-950">
-                {dueDateFormatted}
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                <Users className="size-3.5" />
-                Total Submissions
-              </div>
-              <p className="mt-3 text-xl font-semibold tracking-tight text-stone-950">
-                {safeSubmissions.length}
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-white/70 bg-white/80 p-4 backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                <FileStack className="size-3.5" />
-                Graded So Far
-              </div>
-              <p className="mt-3 text-xl font-semibold tracking-tight text-stone-950">
-                {gradedCount}/{safeSubmissions.length}
-              </p>
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Sheet>
+              <SheetTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    className="h-10 rounded-lg border-stone-200 bg-white px-4 text-stone-700 hover:bg-stone-50"
+                  />
+                }
+              >
+                <NotebookPen className="size-4" />
+                View Rubric
+              </SheetTrigger>
+              <SheetContent side="bottom" className="max-h-[88vh] overflow-y-auto rounded-t-[24px]">
+                <SheetHeader className="px-5 pb-0 pt-5">
+                  <SheetTitle>Assignment context</SheetTitle>
+                  <SheetDescription>Instructions and rubric reference.</SheetDescription>
+                </SheetHeader>
+                <div className="px-5 pb-5">
+                  <AssignmentContextPanel
+                    assignment={assignment}
+                    rubrics={safeRubrics}
+                    totalWeight={totalWeight}
+                    dueDateFormatted={dueDateFormatted}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <a href="#submission-inbox">
+              <Button className="h-10 rounded-lg bg-stone-950 px-4 text-white hover:bg-stone-800">
+                Open Inbox
+                <ChevronRight className="size-4" />
+              </Button>
+            </a>
           </div>
         </div>
-      </div>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.5fr)_360px]">
-        <div id="submission-inbox" className="space-y-5">
-          <div className="flex flex-col gap-3 rounded-[28px] border border-black/8 bg-white p-5 shadow-[0_16px_30px_rgba(10,10,10,0.04)] sm:flex-row sm:items-end sm:justify-between sm:p-6">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                Submission Inbox
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
-                Review AI outputs first
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">
-                Each submission starts as a compact card so you can scan who is waiting, what the current status is, and which results need lecturer attention.
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Due Date</p>
+            <p className="mt-1 text-sm font-medium text-stone-950">{dueDateFormatted}</p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Submissions</p>
+            <p className="mt-1 text-sm font-medium text-stone-950">{safeSubmissions.length}</p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Graded</p>
+            <p className="mt-1 text-sm font-medium text-stone-950">
+              {gradedCount}/{safeSubmissions.length}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <div id="submission-inbox" className="space-y-4">
+          <section className="rounded-[20px] border border-black/8 bg-white px-5 py-4 shadow-sm sm:px-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
+                  Submission Inbox
+                </p>
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                  Review queue
+                </h2>
+              </div>
+              <p className="text-sm text-stone-500">
+                {safeSubmissions.length} total · {safeSubmissions.length - gradedCount} waiting
               </p>
             </div>
-            <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
-              Mobile-first compact layout
-            </Badge>
-          </div>
+          </section>
 
           <SubmissionCreateForm assignmentId={assignmentId} />
 
           {safeSubmissions.length === 0 ? (
-            <div className="rounded-[32px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-[0_16px_30px_rgba(10,10,10,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                Empty Inbox
+            <section className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
+              <p className="text-sm font-medium text-stone-700">No submissions yet</p>
+              <p className="mt-2 text-sm text-stone-500">
+                Use the utility panel above when you need a quick manual submission for testing.
               </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight text-stone-950">
-                No submissions yet
-              </h3>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-500">
-                Use the utility panel above when you need a quick manual submission for testing or demo flow.
-              </p>
-            </div>
+            </section>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {safeSubmissions.map((submission) => {
                 const grade = gradeBySubmission.get(submission.id);
 
@@ -401,7 +349,7 @@ export default async function AssignmentDetailPage({
           )}
         </div>
 
-        <aside className="hidden xl:block xl:sticky xl:top-24">
+        <aside className="hidden xl:block xl:sticky xl:top-24 xl:self-start">
           <AssignmentContextPanel
             assignment={assignment}
             rubrics={safeRubrics}

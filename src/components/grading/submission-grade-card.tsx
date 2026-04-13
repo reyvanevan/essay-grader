@@ -2,14 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { formatDistanceToNow } from "date-fns";
-import {
-  ChevronDown,
-  FileText,
-  Loader2,
-  MessageSquareText,
-  Sparkles,
-  SquarePen,
-} from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,14 +41,14 @@ type SubmissionGradeCardProps = {
 };
 
 const statusStyles: Record<string, string> = {
-  pending: "bg-stone-100 text-stone-700 border-stone-200",
-  queued: "bg-amber-100 text-amber-700 border-amber-200",
-  processing: "bg-sky-100 text-sky-700 border-sky-200",
-  graded: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  failed: "bg-rose-100 text-rose-700 border-rose-200",
+  pending: "border-stone-200 bg-stone-100 text-stone-700",
+  queued: "border-amber-200 bg-amber-50 text-amber-700",
+  processing: "border-sky-200 bg-sky-50 text-sky-700",
+  graded: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  failed: "border-rose-200 bg-rose-50 text-rose-700",
 };
 
-function truncateAnswer(answer: string | null, maxLength = 150) {
+function truncateAnswer(answer: string | null, maxLength = 120) {
   if (!answer) return "No answer provided.";
   if (answer.length <= maxLength) return answer;
   return `${answer.slice(0, maxLength).trimEnd()}...`;
@@ -72,10 +65,7 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
   const [error, setError] = useState<string | null>(null);
 
   const rubricBreakdown = grade?.ai_rubric_breakdown || [];
-  const safeStatusClass = statusStyles[submission.status] || statusStyles.pending;
-  const relativeTime = formatDistanceToNow(new Date(submission.created_at), {
-    addSuffix: true,
-  });
+  const relativeTime = formatDistanceToNow(new Date(submission.created_at), { addSuffix: true });
 
   const saveOverride = () => {
     setError(null);
@@ -102,7 +92,6 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
         });
 
         const body = (await response.json()) as { error?: string };
-
         if (!response.ok) {
           setError(body.error || "Failed to save override.");
           return;
@@ -116,96 +105,63 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
   };
 
   return (
-    <details className="group rounded-[28px] border border-black/8 bg-white shadow-[0_16px_30px_rgba(10,10,10,0.04)] open:shadow-[0_20px_50px_rgba(10,10,10,0.08)]">
-      <summary className="list-none cursor-pointer p-5 sm:p-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-semibold tracking-tight text-[#111]">
-                  {submission.student_name}
-                </h3>
-                <Badge
-                  variant="outline"
-                  className={`border px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] ${safeStatusClass}`}
-                >
-                  {submission.status}
-                </Badge>
-              </div>
-              <p className="text-sm text-stone-500">
-                {submission.student_identifier} · {relativeTime}
-              </p>
+    <details className="group rounded-[18px] border border-black/8 bg-white shadow-sm open:border-stone-300">
+      <summary className="list-none cursor-pointer px-5 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-medium text-stone-950 sm:text-base">
+                {submission.student_name}
+              </h3>
+              <Badge
+                variant="outline"
+                className={`text-[11px] ${statusStyles[submission.status] || statusStyles.pending}`}
+              >
+                {submission.status}
+              </Badge>
             </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="rounded-2xl bg-stone-950 px-3 py-2 text-right text-white">
-                <p className="text-[10px] uppercase tracking-[0.18em] text-white/60">Final</p>
-                <p className="text-lg font-semibold leading-none">
-                  {grade?.final_score ?? grade?.ai_weighted_total ?? "-"}
-                </p>
-              </div>
-              <div className="flex size-10 items-center justify-center rounded-2xl border border-black/8 bg-stone-50 text-stone-500 transition-transform group-open:rotate-180">
-                <ChevronDown className="size-4" />
-              </div>
-            </div>
+            <p className="mt-1 text-sm text-stone-500">
+              {submission.student_identifier} · {relativeTime}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-stone-600">
+              {truncateAnswer(submission.answer_text)}
+            </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-[1.4fr_0.9fr]">
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3">
-              <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                <FileText className="size-3.5" />
-                Answer Preview
-              </div>
-              <p className="text-sm leading-relaxed text-stone-700">
-                {truncateAnswer(submission.answer_text)}
+          <div className="flex shrink-0 items-start gap-3">
+            <div className="text-right">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Final</p>
+              <p className="mt-1 text-base font-semibold text-stone-950">
+                {grade?.final_score ?? grade?.ai_weighted_total ?? "-"}
               </p>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                  AI Holistic
-                </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
-                  {grade?.ai_holistic_score ?? "-"}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                  Override
-                </p>
-                <p className="mt-2 text-sm font-medium text-stone-700">
-                  {grade?.is_overridden ? "Lecturer adjusted" : "AI final"}
-                </p>
-              </div>
+            <div className="flex size-8 items-center justify-center rounded-lg border border-stone-200 bg-stone-50 text-stone-500 transition-transform group-open:rotate-180">
+              <ChevronDown className="size-4" />
             </div>
           </div>
         </div>
       </summary>
 
-      <div className="border-t border-black/6 px-5 pb-5 pt-5 sm:px-6 sm:pb-6">
-        <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-5">
-            <div className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4 sm:p-5">
-              <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                <MessageSquareText className="size-3.5" />
-                Full Student Answer
-              </div>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">
+      <div className="border-t border-stone-100 px-5 py-4">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
+          <div className="space-y-4">
+            <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Full Answer</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-stone-700">
                 {submission.answer_text || "No answer provided."}
               </p>
             </div>
 
             {grade ? (
-              <div className="rounded-[24px] border border-stone-200 bg-white p-4 sm:p-5">
-                <Tabs defaultValue="holistic" className="w-full gap-4">
+              <div className="rounded-xl border border-stone-200 bg-white px-4 py-4">
+                <Tabs defaultValue="holistic" className="gap-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">
                         AI Review
                       </p>
-                      <h4 className="mt-1 text-lg font-semibold tracking-tight text-stone-950">
-                        Detailed evaluation workspace
+                      <h4 className="mt-1 text-base font-medium text-stone-950">
+                        Evaluation details
                       </h4>
                     </div>
                     <TabsList variant="line" className="w-full justify-start sm:w-auto">
@@ -214,73 +170,63 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                     </TabsList>
                   </div>
 
-                  <TabsContent value="holistic" className="space-y-4">
+                  <TabsContent value="holistic" className="space-y-3">
                     <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-2xl bg-stone-950 px-4 py-4 text-white">
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-white/60">
-                          AI Holistic Score
+                      <div className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">
+                          AI Holistic
                         </p>
-                        <p className="mt-2 text-3xl font-semibold tracking-tight">
+                        <p className="mt-1 text-lg font-semibold text-stone-950">
                           {grade.ai_holistic_score ?? "-"}
                         </p>
                       </div>
-                      <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">
-                          Weighted Total
+                      <div className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">
+                          Weighted
                         </p>
-                        <p className="mt-2 text-3xl font-semibold tracking-tight text-stone-950">
+                        <p className="mt-1 text-lg font-semibold text-stone-950">
                           {grade.ai_weighted_total ?? "-"}
                         </p>
                       </div>
-                      <div className="rounded-2xl border border-stone-200 bg-white px-4 py-4">
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">
-                          Final Mode
+                      <div className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-3">
+                        <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">
+                          Override
                         </p>
-                        <p className="mt-2 text-sm font-medium text-stone-700">
-                          {grade.is_overridden ? "Lecturer override active" : "AI result in use"}
+                        <p className="mt-1 text-sm font-medium text-stone-700">
+                          {grade.is_overridden ? "Lecturer adjusted" : "AI final"}
                         </p>
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
-                      <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                        <Sparkles className="size-3.5" />
-                        AI Feedback
-                      </div>
-                      <p className="text-sm leading-relaxed text-stone-700">
+
+                    <div className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-4">
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">
+                        Feedback
+                      </p>
+                      <p className="mt-2 text-sm leading-relaxed text-stone-700">
                         {grade.ai_holistic_feedback || "No AI feedback."}
                       </p>
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="rubric" className="space-y-3">
+                  <TabsContent value="rubric" className="space-y-2">
                     {rubricBreakdown.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 px-4 py-5 text-sm text-stone-500">
+                      <div className="rounded-lg border border-dashed border-stone-300 bg-stone-50 px-4 py-4 text-sm text-stone-500">
                         No rubric breakdown returned yet.
                       </div>
                     ) : (
                       rubricBreakdown.map((item) => (
-                        <div
-                          key={item.aspect}
-                          className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4"
-                        >
+                        <div key={item.aspect} className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-4">
                           <div className="flex items-start justify-between gap-3">
                             <div>
-                              <p className="font-semibold text-stone-950">{item.aspect}</p>
-                              <p className="mt-1 text-sm leading-relaxed text-stone-600">
-                                {item.feedback}
-                              </p>
+                              <p className="text-sm font-medium text-stone-950">{item.aspect}</p>
+                              <p className="mt-1 text-sm text-stone-600">{item.feedback}</p>
                             </div>
-                            <div className="shrink-0 rounded-xl bg-white px-3 py-2 text-right ring-1 ring-black/6">
-                              <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">
-                                Score
-                              </p>
-                              <p className="text-lg font-semibold text-stone-950">
-                                {item.score}
-                              </p>
-                              <p className="text-[11px] text-stone-400">{item.weight}% weight</p>
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-stone-950">{item.score}</p>
+                              <p className="text-xs text-stone-400">{item.weight}% weight</p>
                             </div>
                           </div>
-                          <p className="mt-3 text-xs leading-relaxed text-stone-500">
+                          <p className="mt-2 text-xs leading-relaxed text-stone-500">
                             Reasoning: {item.reasoning}
                           </p>
                         </div>
@@ -290,30 +236,26 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                 </Tabs>
               </div>
             ) : (
-              <div className="rounded-[24px] border border-dashed border-stone-300 bg-stone-50 px-4 py-6 text-sm text-stone-500">
+              <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-4 py-4 text-sm text-stone-500">
                 Grade is not available yet.
               </div>
             )}
           </div>
 
           {grade ? (
-            <div className="rounded-[24px] border border-stone-200 bg-[#fffdf9] p-4 sm:p-5 xl:sticky xl:top-24 xl:self-start">
+            <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4 xl:sticky xl:top-24 xl:self-start">
               <div className="mb-4">
-                <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                  <SquarePen className="size-3.5" />
+                <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">
                   Lecturer Override
-                </div>
-                <h4 className="text-lg font-semibold tracking-tight text-stone-950">
-                  Finalize this evaluation
-                </h4>
-                <p className="mt-1 text-sm leading-relaxed text-stone-500">
-                  Adjust the final score only when you want the published result to differ from the AI recommendation.
+                </p>
+                <p className="mt-1 text-sm text-stone-500">
+                  Adjust the published result if needed.
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label htmlFor={`final-score-${submission.id}`}>Final Score (0-100)</Label>
+                  <Label htmlFor={`final-score-${submission.id}`}>Final Score</Label>
                   <Input
                     id={`final-score-${submission.id}`}
                     type="number"
@@ -321,29 +263,29 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                     max={100}
                     value={overrideScore}
                     onChange={(event) => setOverrideScore(event.target.value)}
-                    className="h-11 rounded-xl bg-white"
+                    className="h-10 rounded-lg border-stone-200 bg-white"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`override-note-${submission.id}`}>Override Note</Label>
+                  <Label htmlFor={`override-note-${submission.id}`}>Note</Label>
                   <Input
                     id={`override-note-${submission.id}`}
                     value={overrideNote}
                     onChange={(event) => setOverrideNote(event.target.value)}
                     placeholder="Reason for adjustment"
-                    className="h-11 rounded-xl bg-white"
+                    className="h-10 rounded-lg border-stone-200 bg-white"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor={`final-feedback-${submission.id}`}>Final Feedback</Label>
+                  <Label htmlFor={`final-feedback-${submission.id}`}>Feedback</Label>
                   <Textarea
                     id={`final-feedback-${submission.id}`}
-                    className="min-h-28 rounded-2xl bg-white"
                     value={overrideFeedback}
                     onChange={(event) => setOverrideFeedback(event.target.value)}
-                    placeholder="Optional final feedback for the student"
+                    placeholder="Optional final feedback"
+                    className="min-h-24 rounded-xl border-stone-200 bg-white"
                   />
                 </div>
 
@@ -352,15 +294,15 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
                 <Button
                   onClick={saveOverride}
                   disabled={isPending || !overrideScore}
-                  className="h-11 w-full rounded-xl bg-stone-950 text-white hover:bg-stone-800"
+                  className="h-10 w-full rounded-lg bg-stone-950 text-white hover:bg-stone-800"
                 >
                   {isPending ? (
                     <span className="inline-flex items-center gap-2">
                       <Loader2 className="size-4 animate-spin" />
-                      Saving override...
+                      Saving...
                     </span>
                   ) : (
-                    "Save Lecturer Decision"
+                    "Save Decision"
                   )}
                 </Button>
               </div>
