@@ -76,11 +76,13 @@ export default function CreateAssignmentPage() {
     setRubrics((current) => current.filter((rubric) => rubric.id !== id));
   };
 
-  const updateRubric = (id: string, field: keyof Omit<RubricDraft, "id">, value: string | number) => {
+  const updateRubric = (
+    id: string,
+    field: keyof Omit<RubricDraft, "id">,
+    value: string | number
+  ) => {
     setRubrics((current) =>
-      current.map((rubric) =>
-        rubric.id === id ? { ...rubric, [field]: value } : rubric
-      )
+      current.map((rubric) => (rubric.id === id ? { ...rubric, [field]: value } : rubric))
     );
   };
 
@@ -154,46 +156,39 @@ export default function CreateAssignmentPage() {
           Back to Assignments
         </Link>
 
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-              Guided Builder
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">
-              Create New Assignment
-            </h1>
-            <p className="mt-2 text-sm leading-relaxed text-stone-500">
-              Complete one decision at a time so the assignment stays clear and the rubric stays balanced.
-            </p>
-          </div>
+        <div className="mt-4 flex flex-col gap-2">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
+            Guided Builder
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">
+            Create New Assignment
+          </h1>
+          <p className="text-sm leading-relaxed text-stone-500">
+            Complete one decision at a time so the assignment stays clear and the rubric stays balanced.
+          </p>
+        </div>
 
+        <div className="mt-5 flex items-center justify-between">
           <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
-            Step {stepIndex + 1} of {steps.length}
+            Step {stepIndex + 1} of {steps.length}: {currentStep.label}
           </Badge>
         </div>
 
-        <div className="mt-5">
-          <div className="h-1.5 rounded-full bg-stone-100">
-            <div
-              className="h-full rounded-full bg-stone-900 transition-all duration-300"
-              style={{ width: progressWidth }}
-            />
-          </div>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-stone-500">
-            {steps.map((step, index) => (
-              <span
-                key={step.id}
-                className={index === stepIndex ? "font-medium text-stone-950" : ""}
-              >
-                {index + 1}. {step.label}
-              </span>
-            ))}
-          </div>
+        <div className="mt-3 h-1.5 rounded-full bg-stone-100">
+          <div
+            className="h-full rounded-full bg-stone-900 transition-all duration-300"
+            style={{ width: progressWidth }}
+          />
         </div>
-      </section>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-stone-500">
+          {steps.map((step, index) => (
+            <span key={step.id} className={index === stepIndex ? "font-medium text-stone-950" : ""}>
+              {index + 1}. {step.label}
+            </span>
+          ))}
+        </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <section className="rounded-[20px] border border-black/8 bg-white px-5 py-5 shadow-sm sm:px-6">
+        <div className="mt-6 rounded-[18px] border border-stone-200 bg-white px-4 py-5 sm:px-5">
           {stepIndex === 0 ? (
             <div className="space-y-5">
               <div>
@@ -318,9 +313,7 @@ export default function CreateAssignmentPage() {
                         <Label>Grading Aspect</Label>
                         <Input
                           value={rubric.aspect}
-                          onChange={(event) =>
-                            updateRubric(rubric.id, "aspect", event.target.value)
-                          }
+                          onChange={(event) => updateRubric(rubric.id, "aspect", event.target.value)}
                           placeholder="e.g. Code Efficiency"
                           className="h-10 rounded-lg border-stone-200 bg-white"
                         />
@@ -410,9 +403,7 @@ export default function CreateAssignmentPage() {
                           {rubric.description || "No rubric definition provided."}
                         </p>
                       </div>
-                      <span className="text-sm font-medium text-stone-500">
-                        {rubric.weight || 0}%
-                      </span>
+                      <span className="text-sm font-medium text-stone-500">{rubric.weight || 0}%</span>
                     </div>
                   </div>
                 ))}
@@ -454,46 +445,34 @@ export default function CreateAssignmentPage() {
               )}
             </Button>
           </div>
-        </section>
+        </div>
 
-        <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-              Current Step
-            </p>
-            <p className="mt-1 text-sm font-medium text-stone-950">{currentStep.label}</p>
-            <p className="mt-2 text-sm text-stone-500">
-              Keep this step concise before moving forward.
-            </p>
-          </div>
-
-          <div className="rounded-[20px] border border-black/8 bg-white px-4 py-4 shadow-sm">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-stone-400">
-              Draft Snapshot
-            </p>
-            <div className="mt-3 space-y-3 text-sm">
-              <div>
-                <p className="text-stone-400">Title</p>
-                <p className="mt-1 font-medium text-stone-900">{title || "Waiting for title"}</p>
-              </div>
-              <div>
-                <p className="text-stone-400">Instructions</p>
-                <p className="mt-1 text-stone-600">
-                  {description
-                    ? `${description.slice(0, 96)}${description.length > 96 ? "..." : ""}`
-                    : "No instructions drafted yet"}
-                </p>
-              </div>
-              <div>
-                <p className="text-stone-400">Rubrics</p>
-                <p className="mt-1 font-medium text-stone-900">
-                  {rubrics.length} aspects · {totalWeight}%
-                </p>
-              </div>
+        <details className="mt-4 rounded-[16px] border border-stone-200 bg-stone-50 px-4 py-3 text-sm">
+          <summary className="cursor-pointer font-medium text-stone-700">
+            Draft Snapshot
+          </summary>
+          <div className="mt-3 space-y-3">
+            <div>
+              <p className="text-stone-400">Title</p>
+              <p className="mt-1 font-medium text-stone-900">{title || "Waiting for title"}</p>
+            </div>
+            <div>
+              <p className="text-stone-400">Instructions</p>
+              <p className="mt-1 text-stone-600">
+                {description
+                  ? `${description.slice(0, 120)}${description.length > 120 ? "..." : ""}`
+                  : "No instructions drafted yet"}
+              </p>
+            </div>
+            <div>
+              <p className="text-stone-400">Rubrics</p>
+              <p className="mt-1 font-medium text-stone-900">
+                {rubrics.length} aspects · {totalWeight}%
+              </p>
             </div>
           </div>
-        </aside>
-      </div>
+        </details>
+      </section>
     </div>
   );
 }
