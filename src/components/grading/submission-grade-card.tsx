@@ -154,7 +154,7 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
 
       <SheetContent
         side="right"
-        className="w-full overflow-hidden md:w-[52rem] md:max-w-none lg:w-[56rem]"
+        className="w-full overflow-hidden data-[side=right]:md:w-[52rem] data-[side=right]:lg:w-[56rem] data-[side=right]:md:max-w-none"
       >
         <SheetHeader className="px-5 pb-3 pt-5 sm:px-8 sm:pt-7">
           <SheetTitle>{submission.student_name}</SheetTitle>
