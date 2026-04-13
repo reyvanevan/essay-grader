@@ -23,6 +23,9 @@ type AssignmentRow = {
   course_code: string | null;
   description: string | null;
   due_date: string | null;
+  llm_provider: string | null;
+  llm_model: string | null;
+  llm_model_locked_at: string | null;
 };
 
 type RubricRow = {
@@ -154,7 +157,7 @@ export default async function AssignmentDetailPage({
 
   const { data: assignment, error: assignmentError } = await supabase
     .from("assignments")
-    .select("id, title, course_code, description, due_date")
+    .select("id, title, course_code, description, due_date, llm_provider, llm_model, llm_model_locked_at")
     .eq("id", assignmentId)
     .single<AssignmentRow>();
 
@@ -224,6 +227,14 @@ export default async function AssignmentDetailPage({
               >
                 {status}
               </Badge>
+              <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+                {assignment.llm_model || "llama-3.3-70b-versatile"}
+              </Badge>
+              {assignment.llm_model_locked_at ? (
+                <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+                  Model Locked
+                </Badge>
+              ) : null}
               <span className="text-sm text-stone-500">
                 {assignment.course_code || "General Course"}
               </span>

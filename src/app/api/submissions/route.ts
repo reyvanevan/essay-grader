@@ -74,6 +74,19 @@ export async function POST(request: Request) {
     );
   }
 
+  const { error: lockError } = await supabase
+    .from("assignments")
+    .update({
+      llm_model_locked_at: now,
+      updated_at: now,
+    })
+    .eq("id", parsed.data.assignmentId)
+    .is("llm_model_locked_at", null);
+
+  if (lockError) {
+    console.error("Failed to lock assignment model after first submission:", lockError);
+  }
+
   // Best-effort fallback for low-cost environments (e.g., Vercel Hobby cron limits).
   // This keeps the queue moving even when high-frequency cron is unavailable.
   try {

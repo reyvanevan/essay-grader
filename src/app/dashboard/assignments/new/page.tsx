@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -19,6 +19,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createAssignmentAction } from "./actions";
 
@@ -43,6 +50,9 @@ const stepGuidance = [
   "Review the draft one last time before publishing.",
 ] as const;
 
+const FALLBACK_MODEL = "llama-3.3-70b-versatile";
+const FALLBACK_PROVIDER = "groq";
+
 export default function CreateAssignmentPage() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
@@ -50,6 +60,11 @@ export default function CreateAssignmentPage() {
   const [title, setTitle] = useState("");
   const [courseCode, setCourseCode] = useState("");
   const [description, setDescription] = useState("");
+  const [llmProvider, setLlmProvider] = useState(FALLBACK_PROVIDER);
+  const [llmModel, setLlmModel] = useState(FALLBACK_MODEL);
+  const [modelOptions, setModelOptions] = useState<string[]>([FALLBACK_MODEL]);
+  const [isLoadingModels, setIsLoadingModels] = useState(true);
+  const [modelLoadError, setModelLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [rubrics, setRubrics] = useState<RubricDraft[]>([
     {
@@ -71,6 +86,53 @@ export default function CreateAssignmentPage() {
   const currentGuidance = stepGuidance[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
   const totalWeight = rubrics.reduce((sum, rubric) => sum + Number(rubric.weight || 0), 0);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadModels = async () => {
+      setIsLoadingModels(true);
+      setModelLoadError(null);
+      try {
+        const response = await fetch("/api/internal/llm/models?provider=groq", { method: "GET" });
+        if (!response.ok) {
+          throw new Error("Unable to load model catalog.");
+        }
+
+        const body = (await response.json()) as {
+          provider?: string;
+          recommendedModel?: string;
+          models?: string[];
+        };
+
+        if (!active) return;
+
+        const safeModels = Array.isArray(body.models)
+          ? body.models.filter((model): model is string => typeof model === "string" && model.length > 0)
+          : [];
+        const nextOptions = safeModels.length > 0 ? safeModels : [FALLBACK_MODEL];
+        const nextRecommended = body.recommendedModel?.trim() || nextOptions[0];
+        setModelOptions(nextOptions);
+        setLlmProvider((body.provider || FALLBACK_PROVIDER).toLowerCase());
+        setLlmModel((current) => (nextOptions.includes(current) ? current : nextRecommended));
+      } catch {
+        if (!active) return;
+        setModelOptions([FALLBACK_MODEL]);
+        setLlmProvider(FALLBACK_PROVIDER);
+        setLlmModel(FALLBACK_MODEL);
+        setModelLoadError("Could not load live Groq models. Using default model.");
+      } finally {
+        if (active) {
+          setIsLoadingModels(false);
+        }
+      }
+    };
+
+    void loadModels();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const addRubric = () => {
     setRubrics((current) => [
@@ -95,7 +157,7 @@ export default function CreateAssignmentPage() {
 
   const canAdvance = () => {
     if (stepIndex === 0) {
-      return title.trim().length > 0;
+      return title.trim().length > 0 && llmModel.trim().length > 0;
     }
 
     if (stepIndex === 1) {
@@ -135,6 +197,8 @@ export default function CreateAssignmentPage() {
       formData.append("title", title);
       formData.append("courseCode", courseCode);
       formData.append("description", description);
+      formData.append("llmProvider", llmProvider);
+      formData.append("llmModel", llmModel);
 
       if (date) {
         formData.append("dueDate", date.toISOString());
@@ -251,6 +315,29 @@ export default function CreateAssignmentPage() {
                     </PopoverContent>
                   </Popover>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Grading Model *</Label>
+                <Select value={llmModel} onValueChange={setLlmModel}>
+                  <SelectTrigger className="h-10 w-full rounded-lg border-stone-200 bg-stone-50">
+                    <SelectValue placeholder="Select Groq model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {modelOptions.map((modelId) => (
+                      <SelectItem key={modelId} value={modelId}>
+                        {modelId}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs leading-relaxed text-stone-500">
+                  Model will be locked after the first submission for fairness.
+                </p>
+                {isLoadingModels ? (
+                  <p className="text-xs text-stone-400">Loading Groq model catalog...</p>
+                ) : null}
+                {modelLoadError ? <p className="text-xs text-amber-700">{modelLoadError}</p> : null}
               </div>
             </div>
           ) : null}
@@ -383,6 +470,9 @@ export default function CreateAssignmentPage() {
                   <Badge variant="outline" className="border-stone-200 bg-white text-stone-700">
                     {date ? format(date, "dd MMM yyyy") : "No deadline"}
                   </Badge>
+                  <Badge variant="outline" className="border-stone-200 bg-white text-stone-700">
+                    {llmModel}
+                  </Badge>
                 </div>
                 <h3 className="mt-3 text-lg font-semibold text-stone-950">
                   {title || "Untitled Assignment"}
@@ -474,6 +564,10 @@ export default function CreateAssignmentPage() {
               <p className="mt-1 font-medium text-stone-900">
                 {rubrics.length} aspects · {totalWeight}%
               </p>
+            </div>
+            <div>
+              <p className="text-stone-400">Grading model</p>
+              <p className="mt-1 font-medium text-stone-900">{llmModel}</p>
             </div>
           </div>
         </details>

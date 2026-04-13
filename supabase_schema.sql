@@ -15,6 +15,9 @@ CREATE TABLE assignments (
     course_code TEXT,
     description TEXT,
     due_date TIMESTAMPTZ,
+    llm_provider TEXT NOT NULL DEFAULT 'groq',
+    llm_model TEXT NOT NULL DEFAULT 'llama-3.3-70b-versatile',
+    llm_model_locked_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -53,6 +56,8 @@ CREATE TABLE grades (
     ai_rubric_breakdown JSONB,
     ai_weighted_total NUMERIC,
     ai_reasoning TEXT,
+    ai_provider TEXT,
+    ai_model TEXT,
 
     final_score NUMERIC,
     final_feedback TEXT,
@@ -85,6 +90,11 @@ CREATE TABLE grading_jobs (
 CREATE INDEX idx_submissions_assignment_id ON submissions(assignment_id);
 CREATE INDEX idx_submissions_status ON submissions(status);
 CREATE INDEX idx_grading_jobs_status_run_at ON grading_jobs(status, run_at);
+
+UPDATE assignments
+SET
+    llm_provider = COALESCE(NULLIF(llm_provider, ''), 'groq'),
+    llm_model = COALESCE(NULLIF(llm_model, ''), 'llama-3.3-70b-versatile');
 
 -- Enable RLS
 ALTER TABLE assignments ENABLE ROW LEVEL SECURITY;

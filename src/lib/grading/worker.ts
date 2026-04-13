@@ -4,6 +4,7 @@ import { getLLMProvider } from "@/lib/grading/providers";
 import { parseLLMResponse } from "@/lib/grading/response-parser";
 import { computeWeightedTotal, reconcileRubricScores } from "@/lib/grading/policy";
 import type { RubricDefinition } from "@/lib/grading/types";
+import { normalizeModel, normalizeProvider } from "@/lib/grading/model-policy";
 
 type GradingJobRow = {
   id: string;
@@ -24,6 +25,8 @@ type AssignmentRow = {
   id: string;
   title: string;
   description: string | null;
+  llm_provider: string | null;
+  llm_model: string | null;
 };
 
 type RubricRow = {
@@ -110,7 +113,7 @@ async function processSingleJob(job: GradingJobRow, workerId: string): Promise<v
 
   const { data: assignment, error: assignmentError } = await supabase
     .from("assignments")
-    .select("id, title, description")
+    .select("id, title, description, llm_provider, llm_model")
     .eq("id", submission.assignment_id)
     .single<AssignmentRow>();
 
@@ -146,7 +149,10 @@ async function processSingleJob(job: GradingJobRow, workerId: string): Promise<v
     rubrics: rubricDefinitions,
   });
 
-  const provider = getLLMProvider();
+  const provider = getLLMProvider({
+    provider: normalizeProvider(assignment.llm_provider),
+    model: normalizeModel(assignment.llm_model),
+  });
   const providerRawOutput = await provider.gradeEssay({ prompt });
   const parsed = parseLLMResponse(providerRawOutput);
 
@@ -179,6 +185,8 @@ async function processSingleJob(job: GradingJobRow, workerId: string): Promise<v
       ai_rubric_breakdown: normalizedRubric,
       ai_weighted_total: weightedTotal,
       ai_reasoning: parsed.global_reasoning,
+      ai_provider: provider.provider,
+      ai_model: provider.model,
       final_score: finalScore,
       final_feedback: finalFeedback,
       is_overridden: shouldKeepOverride,

@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { normalizeModel, normalizeProvider } from "@/lib/grading/model-policy";
 
 type RubricInput = {
   aspect: string;
@@ -17,9 +18,13 @@ export async function createAssignmentAction(formData: FormData, rubricsData: Ru
   const courseCode = formData.get("courseCode") as string;
   const dueDateStr = formData.get("dueDate") as string;
   const description = formData.get("description") as string;
+  const llmModelInput = formData.get("llmModel") as string;
+  const llmProviderInput = formData.get("llmProvider") as string;
+  const llmModel = normalizeModel(llmModelInput);
+  const llmProvider = normalizeProvider(llmProviderInput);
 
-  if (!title || rubricsData.length === 0) {
-    return { error: "Title and at least one Rubric must be provided!" };
+  if (!title || rubricsData.length === 0 || !llmModel) {
+    return { error: "Title, grading model, and at least one Rubric must be provided." };
   }
 
   const dueDate = dueDateStr ? new Date(dueDateStr).toISOString() : null;
@@ -35,6 +40,9 @@ export async function createAssignmentAction(formData: FormData, rubricsData: Ru
           course_code: courseCode || null,
           description: description || null,
           due_date: dueDate,
+          llm_provider: llmProvider,
+          llm_model: llmModel,
+          llm_model_locked_at: null,
           created_at: now,
           updated_at: now,
         },
