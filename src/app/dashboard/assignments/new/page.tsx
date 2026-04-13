@@ -87,6 +87,11 @@ export default function CreateAssignmentPage() {
   const isLastStep = stepIndex === steps.length - 1;
   const totalWeight = rubrics.reduce((sum, rubric) => sum + Number(rubric.weight || 0), 0);
 
+  const handleModelChange = (value: string | null) => {
+    if (!value) return;
+    setLlmModel(value);
+  };
+
   useEffect(() => {
     let active = true;
 
@@ -319,7 +324,7 @@ export default function CreateAssignmentPage() {
 
               <div className="space-y-2">
                 <Label>Grading Model *</Label>
-                <Select value={llmModel} onValueChange={setLlmModel}>
+                <Select value={llmModel} onValueChange={handleModelChange}>
                   <SelectTrigger className="h-10 w-full rounded-lg border-stone-200 bg-stone-50">
                     <SelectValue placeholder="Select Groq model" />
                   </SelectTrigger>
