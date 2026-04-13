@@ -200,32 +200,40 @@ export default async function AssignmentDetailPage({
                 <NotebookPen className="size-4" />
                 Assignment Context
               </SheetTrigger>
-              <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl">
+              <SheetContent
+                side="right"
+                className="w-full overflow-y-auto data-[side=right]:md:w-[46rem] data-[side=right]:lg:w-[52rem] data-[side=right]:md:max-w-none"
+              >
                 <SheetHeader>
                   <SheetTitle>Assignment Context</SheetTitle>
                   <SheetDescription>Instructions and rubric reference on demand.</SheetDescription>
                 </SheetHeader>
 
                 <Tabs defaultValue="instructions" className="mt-5 gap-4">
-                  <TabsList variant="line" className="w-full justify-start">
-                    <TabsTrigger value="instructions">Instructions</TabsTrigger>
-                    <TabsTrigger value="rubric">Rubric</TabsTrigger>
-                  </TabsList>
+                  <div className="mx-auto max-w-3xl">
+                    <TabsList variant="line" className="w-full justify-start">
+                      <TabsTrigger value="instructions">Instructions</TabsTrigger>
+                      <TabsTrigger value="rubric">Rubric</TabsTrigger>
+                    </TabsList>
+                  </div>
 
                   <TabsContent value="instructions" className="space-y-3">
-                    <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
-                      <p className="text-sm leading-relaxed text-stone-700 whitespace-pre-wrap">
+                    <div className="mx-auto max-w-3xl rounded-xl border border-stone-200 bg-stone-50 px-4 py-4">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">
                         {assignment.description || "No instructions provided."}
                       </p>
                     </div>
                   </TabsContent>
 
                   <TabsContent value="rubric" className="space-y-3">
-                    <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
+                    <div className="mx-auto max-w-3xl rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
                       {safeRubrics.length} aspects · {totalWeight}% total weight
                     </div>
                     {safeRubrics.map((rubric) => (
-                      <div key={rubric.id} className="rounded-xl border border-stone-200 bg-white px-4 py-4">
+                      <div
+                        key={rubric.id}
+                        className="mx-auto max-w-3xl rounded-xl border border-stone-200 bg-white px-4 py-4"
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <p className="text-sm font-medium text-stone-950">{rubric.aspect}</p>
                           <span className="text-xs text-stone-500">{rubric.weight}%</span>

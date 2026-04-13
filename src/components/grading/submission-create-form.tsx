@@ -92,7 +92,10 @@ export function SubmissionCreateForm({ assignmentId }: SubmissionCreateFormProps
         </div>
       </div>
 
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-xl">
+      <SheetContent
+        side="right"
+        className="w-full overflow-y-auto data-[side=right]:md:w-[46rem] data-[side=right]:lg:w-[52rem] data-[side=right]:md:max-w-none"
+      >
         <SheetHeader>
           <SheetTitle>Add Manual Submission</SheetTitle>
           <SheetDescription>
@@ -100,7 +103,7 @@ export function SubmissionCreateForm({ assignmentId }: SubmissionCreateFormProps
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-5 space-y-4 px-1 pb-4">
+        <div className="mx-auto mt-5 max-w-3xl space-y-4 px-1 pb-4">
           <div className="space-y-2">
             <Label htmlFor="studentName">Student Name</Label>
             <Input
