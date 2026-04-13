@@ -11,6 +11,19 @@ type RubricInput = {
   description: string;
 };
 
+function mapAssignmentInsertError(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("llm_provider") ||
+    lower.includes("llm_model") ||
+    lower.includes("llm_model_locked_at")
+  ) {
+    return "Database schema is missing model-selection columns. Run docs/sql/assignment-model-selection-v1.sql on Supabase first.";
+  }
+
+  return `Failed to create assignment record: ${message}`;
+}
+
 export async function createAssignmentAction(formData: FormData, rubricsData: RubricInput[]) {
   const supabase = await createClient();
 
@@ -52,7 +65,7 @@ export async function createAssignmentAction(formData: FormData, rubricsData: Ru
 
     if (assignmentError) {
       console.error("Assignment Insert Error:", assignmentError);
-      return { error: "Failed to create assignment record." };
+      return { error: mapAssignmentInsertError(assignmentError.message || "unknown") };
     }
 
     const assignmentId = assignmentData.id;
@@ -76,7 +89,8 @@ export async function createAssignmentAction(formData: FormData, rubricsData: Ru
     revalidatePath("/dashboard/assignments");
   } catch (error) {
     console.error("Server Action Exception:", error);
-    return { error: "Server ran into an unexpected issue while saving." };
+    const message = error instanceof Error ? error.message : "unknown";
+    return { error: `Server ran into an unexpected issue while saving: ${message}` };
   }
 
   redirect("/dashboard/assignments");
