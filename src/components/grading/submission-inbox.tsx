@@ -58,7 +58,7 @@ export function SubmissionInbox({ assignmentId, submissions, grades }: Submissio
     );
   }, [optimisticSubmissions, submissions]);
 
-  const handleOptimisticCreated = (submission: SubmissionItem) => {
+  const handleCreated = (submission: SubmissionItem) => {
     setOptimisticSubmissions((current) => {
       if (current.some((item) => item.id === submission.id)) {
         return current;
@@ -67,29 +67,10 @@ export function SubmissionInbox({ assignmentId, submissions, grades }: Submissio
     });
   };
 
-  const handleConfirmed = (tempId: string, submission: SubmissionItem) => {
-    setOptimisticSubmissions((current) => {
-      const withoutTemp = current.filter((item) => item.id !== tempId);
-      if (withoutTemp.some((item) => item.id === submission.id)) {
-        return withoutTemp;
-      }
-      return [submission, ...withoutTemp];
-    });
-  };
-
-  const handleFailed = (tempId: string) => {
-    setOptimisticSubmissions((current) => current.filter((item) => item.id !== tempId));
-  };
-
   if (mergedSubmissions.length === 0) {
     return (
       <>
-        <SubmissionCreateForm
-          assignmentId={assignmentId}
-          onOptimisticCreated={handleOptimisticCreated}
-          onConfirmed={handleConfirmed}
-          onFailed={handleFailed}
-        />
+        <SubmissionCreateForm assignmentId={assignmentId} onCreated={handleCreated} />
         <section className="rounded-[20px] border border-dashed border-stone-300 bg-white px-6 py-12 text-center shadow-sm">
           <p className="text-sm font-medium text-stone-700">No submissions yet</p>
           <p className="mt-2 text-sm text-stone-500">
@@ -102,12 +83,7 @@ export function SubmissionInbox({ assignmentId, submissions, grades }: Submissio
 
   return (
     <>
-      <SubmissionCreateForm
-        assignmentId={assignmentId}
-        onOptimisticCreated={handleOptimisticCreated}
-        onConfirmed={handleConfirmed}
-        onFailed={handleFailed}
-      />
+      <SubmissionCreateForm assignmentId={assignmentId} onCreated={handleCreated} />
       <div className="space-y-3">
         {mergedSubmissions.map((submission) => {
           const grade = gradeBySubmission.get(submission.id);
