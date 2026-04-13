@@ -77,7 +77,6 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
   const relativeTime = formatDistanceToNow(new Date(submission.created_at), { addSuffix: true });
   const fullAnswer = submission.answer_text || "No answer provided.";
   const shouldAllowExpand = fullAnswer.length > 1200;
-  const answerPreview = shouldAllowExpand ? `${fullAnswer.slice(0, 1200).trimEnd()}...` : fullAnswer;
 
   const saveOverride = () => {
     setError(null);
@@ -153,7 +152,10 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
         </SheetTrigger>
       </div>
 
-      <SheetContent side="right" className="w-full overflow-hidden sm:max-w-4xl">
+      <SheetContent
+        side="right"
+        className="w-full overflow-hidden md:w-[52rem] md:max-w-none lg:w-[56rem]"
+      >
         <SheetHeader className="px-5 pb-3 pt-5 sm:px-8 sm:pt-7">
           <SheetTitle>{submission.student_name}</SheetTitle>
           <SheetDescription>
@@ -165,16 +167,38 @@ export function SubmissionGradeCard({ submission, grade }: SubmissionGradeCardPr
           <div className="mx-auto max-w-3xl space-y-5">
           <div className="rounded-xl border border-stone-200 bg-stone-50 px-5 py-5">
             <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">Student Answer</p>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-stone-700">
-              {isAnswerExpanded ? fullAnswer : answerPreview}
-            </p>
-            {shouldAllowExpand ? (
+            <div className="relative mt-2">
+              <p
+                className={`whitespace-pre-wrap text-sm leading-relaxed text-stone-700 ${
+                  shouldAllowExpand && !isAnswerExpanded ? "max-h-[19rem] overflow-hidden" : ""
+                }`}
+              >
+                {fullAnswer}
+              </p>
+
+              {shouldAllowExpand && !isAnswerExpanded ? (
+                <>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 via-stone-50/95 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-3 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsAnswerExpanded(true)}
+                      className="rounded-full border border-stone-200 bg-white/95 px-3 py-1 text-xs font-medium text-stone-700 shadow-sm transition-colors hover:bg-white hover:text-stone-950"
+                    >
+                      Show more answer
+                    </button>
+                  </div>
+                </>
+              ) : null}
+            </div>
+
+            {shouldAllowExpand && isAnswerExpanded ? (
               <button
                 type="button"
-                onClick={() => setIsAnswerExpanded((current) => !current)}
+                onClick={() => setIsAnswerExpanded(false)}
                 className="mt-3 text-sm font-medium text-stone-700 underline decoration-stone-300 underline-offset-4 transition-colors hover:text-stone-950"
               >
-                {isAnswerExpanded ? "Show less answer" : "Show more answer"}
+                Show less answer
               </button>
             ) : null}
           </div>
